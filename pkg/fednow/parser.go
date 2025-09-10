@@ -11,6 +11,8 @@ import (
 	head "github.com/Mbanq/iso20022-go/ISO20022/head_001_001_02"
 	pacs002 "github.com/Mbanq/iso20022-go/ISO20022/pacs_002_001_10"
 	pacs008 "github.com/Mbanq/iso20022-go/ISO20022/pacs_008_001_08"
+	admi002 "github.com/Mbanq/iso20022-go/ISO20022/admi_002_001_01"
+	"github.com/Mbanq/iso20022-go/pkg/fednow/admi"
 	"github.com/Mbanq/iso20022-go/pkg/fednow/pacs"
 )
 
@@ -62,6 +64,12 @@ func Parse(xmlData []byte) ([]byte, error) {
 			return nil, err
 		}
 		fednowMsg, err = pacs.ParsePacs002(appHdr, doc)
+	case strings.Contains(msgType, "admi.002.001.01"):
+		var doc admi002.Document
+		if err = decoder.Decode(&doc); err != nil {
+			return nil, err
+		}
+		fednowMsg, err = admi.ParseAdmi002Struct(&doc, appHdr)
 	default:
 		return nil, errors.New("unsupported message type: " + msgType)
 	}

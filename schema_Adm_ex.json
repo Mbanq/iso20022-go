@@ -1,0 +1,15 @@
+{
+    "fedNowMessage": {
+        "creationDateTime": "2025-01-09T10:55:26-04:00",
+        "identifier": {
+            "businessMessageId": "20250109",
+            "messageType": "admi.002.001.01",
+            "messageId": "20250109"
+        },
+        "reference": "NOTAVAILABLE",
+        "reason": {
+            "rejectionReason": "T505",
+            "rejectionDateTime": "2025-01-09T10:55:26-04:00"
+        }
+    }
+}

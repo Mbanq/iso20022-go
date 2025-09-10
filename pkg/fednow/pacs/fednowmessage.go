@@ -9,28 +9,24 @@ import (
 	"github.com/Mbanq/iso20022-go/pkg/common"
 )
 
-// FedNowMessage is an interface for all FedNow message types.
-type FedNowMessage interface {
-	isFedNowMessage()
-}
 
 type FedNowMessageCCT struct {
 	FedNowMsg FedNowDetails `json:"fedNowMessage"`
 }
 
-func (f FedNowMessageCCT) isFedNowMessage() {}
+func (f FedNowMessageCCT) IsFedNowMessage() {}
 
 type FedNowMessageACK struct {
 	FedNowMsg FedNowACK `json:"fedNowMessage"`
 }
 
-func (f FedNowMessageACK) isFedNowMessage() {}
+func (f FedNowMessageACK) IsFedNowMessage() {}
 
 type FedNowMessageRtn struct {
 	FedNowMsg FedNowRtn `json:"fedNowMessage"`
 }
 
-func (f FedNowMessageRtn) isFedNowMessage() {}
+func (f FedNowMessageRtn) IsFedNowMessage() {}
 
 type FedNowDetails struct {
 	CreationDateTime common.ISODateTime          `json:"creationDateTime"`

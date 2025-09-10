@@ -39,7 +39,7 @@ func main() {
 		return
 	}
 
-	var fednowMessage pacs.FedNowMessage
+	var fednowMessage fednow.FedNowMessage
 
 	switch *messageId {
 	case "pacs.008.001.08":

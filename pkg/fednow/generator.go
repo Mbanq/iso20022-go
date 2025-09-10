@@ -16,7 +16,7 @@ import (
 	"github.com/Mbanq/iso20022-go/pkg/common"
 	bah "github.com/Mbanq/iso20022-go/pkg/fednow/bah"
 	config "github.com/Mbanq/iso20022-go/pkg/fednow/config"
-	pacs "github.com/Mbanq/iso20022-go/pkg/fednow/pacs"
+	"github.com/Mbanq/iso20022-go/pkg/fednow/pacs"
 )
 
 type xsdCacheEntry struct {
@@ -32,7 +32,7 @@ var (
 )
 
 // Generate creates a FedNow XML envelope for a given message ID using the specified XSD file.
-func Generate(xsdPath, messageType string, config *config.Config, message pacs.FedNowMessage) ([]byte, error) {
+func Generate(xsdPath, messageType string, config *config.Config, message FedNowMessage) ([]byte, error) {
 	// First, try to read from the cache with a read lock.
 	cacheMux.RLock()
 	entry, found := xsdCache[messageType]
@@ -85,7 +85,7 @@ func Generate(xsdPath, messageType string, config *config.Config, message pacs.F
 	return []byte(finalXML), nil
 }
 
-type messageHandler func(cfg *config.Config, msg pacs.FedNowMessage) (string, string, error)
+type messageHandler func(cfg *config.Config, msg FedNowMessage) (string, string, error)
 
 var messageHandlers = map[string]messageHandler{
 	"pacs.008.001.08": handlePacs008,
@@ -93,7 +93,7 @@ var messageHandlers = map[string]messageHandler{
 	"pacs.004.001.10": handlePacs004,
 }
 
-func handlePacs002(cfg *config.Config, message pacs.FedNowMessage) (string, string, error) {
+func handlePacs002(cfg *config.Config, message FedNowMessage) (string, string, error) {
 	msg, ok := message.(pacs.FedNowMessageACK)
 	if !ok {
 		return "", "", fmt.Errorf("invalid message type for pacs.002.001.10")
@@ -122,7 +122,8 @@ func handlePacs002(cfg *config.Config, message pacs.FedNowMessage) (string, stri
 	return bah, pacs002, nil
 }
 
-func handlePacs004(cfg *config.Config, message pacs.FedNowMessage) (string, string, error) {
+
+func handlePacs004(cfg *config.Config, message FedNowMessage) (string, string, error) {
 	msg, ok := message.(pacs.FedNowMessageRtn)
 	if !ok {
 		return "", "", fmt.Errorf("invalid message type for pacs.004.001.10")
@@ -189,7 +190,7 @@ func GeneratePacs002(messageType string, msgConfig *config.Config, message pacs.
 	return appHdr, document, nil
 }
 
-func handlePacs008(cfg *config.Config, message pacs.FedNowMessage) (string, string, error) {
+func handlePacs008(cfg *config.Config, message FedNowMessage) (string, string, error) {
 	msg, ok := message.(pacs.FedNowMessageCCT)
 	if !ok {
 		return "", "", fmt.Errorf("invalid message type for pacs.008.001.08")
