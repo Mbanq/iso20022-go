@@ -302,7 +302,7 @@ We would like to thank the following projects and resources that made this libra
 
 Contributions are welcome and will be accepting via pull requests soon. Please Star and Watch the Repository for updates. You can create the Pull Requests to raise any issues, vulnerabilities, suggestions or feature requests.
 
-[GitHub Issues page](https://github.com/Mbanq/iso20022/issues).
+[GitHub Issues page](https://github.com/Mbanq/iso20022-go/issues).
 
 ## License
 
