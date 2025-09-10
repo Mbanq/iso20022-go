@@ -1,0 +1,245 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/iso20022/fednow-cct.schema.json",
+  "title": "FedNow CCT Message",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["fedNowMessage"],
+  "properties": {
+    "fedNowMessage": {
+      "$ref": "#/definitions/FedNowMessage"
+    }
+  },
+  "definitions": {
+    "FedNowMessage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "creationDateTime",
+        "identifier",
+        "paymentType",
+        "amount",
+        "senderDepositoryInstitution",
+        "receiverDepositoryInstitution",
+        "originator",
+        "beneficiary"
+      ],
+      "properties": {
+        "creationDateTime": {
+          "type": "string",
+          "format": "date-time",
+          "description": "RFC3339 timestamp with timezone offset"
+        },
+        "identifier": {
+          "$ref": "#/definitions/Identifier"
+        },
+        "paymentType": {
+          "$ref": "#/definitions/PaymentType"
+        },
+        "amount": {
+          "$ref": "#/definitions/Amount"
+        },
+        "senderDepositoryInstitution": {
+          "$ref": "#/definitions/DepositoryInstitutionSender"
+        },
+        "receiverDepositoryInstitution": {
+          "$ref": "#/definitions/DepositoryInstitutionReceiver"
+        },
+        "originator": {
+          "$ref": "#/definitions/Party"
+        },
+        "beneficiary": {
+          "$ref": "#/definitions/Party"
+        }
+      }
+    },
+    "Identifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "businessMessageId",
+        "messageId",
+        "instructionId",
+        "endToEndId",
+        "transactionId",
+        "uetr"
+      ],
+      "properties": {
+        "businessMessageId": { "type": "string", "minLength": 1 },
+        "messageId": { "type": "string", "minLength": 1 },
+        "instructionId": { "type": "string", "minLength": 1 },
+        "endToEndId": { "type": "string", "minLength": 1 },
+        "transactionId": { "type": "string", "minLength": 1 },
+        "uetr": { "type": "string", "minLength": 1 }
+      }
+    },
+    "PaymentType": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["categoryPurpose"],
+      "properties": {
+        "categoryPurpose": { "type": "string", "minLength": 1 }
+      }
+    },
+    "Amount": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["amount", "currency"],
+      "properties": {
+        "amount": {
+          "description": "Payment amount as number or string",
+          "oneOf": [
+            { "type": "number", "minimum": 0, "multipleOf": 0.01 },
+            { "type": "string", "pattern": "^\\d+(\\.\\d{1,2})?$" }
+          ]
+        },
+        "currency": {
+          "type": "string",
+          "pattern": "^[A-Z]{3}$",
+          "description": "ISO 4217 currency code"
+        }
+      }
+    },
+    "PostalAddress": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "StreetName",
+        "BuildingNumber",
+        "PostalCode",
+        "TownName",
+        "Country"
+      ],
+      "properties": {
+        "StreetName": { "type": "string", "minLength": 1 },
+        "BuildingNumber": { "type": "string", "minLength": 1 },
+        "Room": { "type": "string", "minLength": 1 },
+        "PostalCode": { "type": "string", "minLength": 1 },
+        "TownName": { "type": "string", "minLength": 1 },
+        "CountrySubDivision": { "type": "string", "minLength": 1 },
+        "Country": {
+          "type": "string",
+          "pattern": "^[A-Z]{2}$",
+          "description": "ISO 3166-1 alpha-2 country code"
+        }
+      }
+    },
+    "DepositoryInstitutionSender": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["senderABANumber", "senderShortName", "postalAddress"],
+      "properties": {
+        "senderABANumber": { "type": "string", "pattern": "^\\d{9}$" },
+        "senderShortName": { "type": "string", "minLength": 1 },
+        "postalAddress": { "$ref": "#/definitions/PostalAddress" }
+      }
+    },
+    "DepositoryInstitutionReceiver": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["receiverABANumber", "receiverShortName", "postalAddress"],
+      "properties": {
+        "receiverABANumber": { "type": "string", "pattern": "^\\d{9}$" },
+        "receiverShortName": { "type": "string", "minLength": 1 },
+        "postalAddress": { "$ref": "#/definitions/PostalAddress" }
+      }
+    },
+    "Personal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "postalAddress", "identifier"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "postalAddress": { "$ref": "#/definitions/PostalAddress" },
+        "identifier": { "type": "string", "minLength": 1 }
+      }
+    },
+    "Party": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["personal"],
+      "properties": {
+        "personal": { "$ref": "#/definitions/Personal" }
+      }
+    }
+  },
+  "examples": [
+    {
+      "fedNowMessage": {
+        "creationDateTime": "2025-01-09T10:55:26-04:00",
+        "identifier": {
+          "businessMessageId": "20250109",
+          "messageId": "20250109",
+          "instructionId": "20250109",
+          "endToEndId": "20250109",
+          "transactionId": "20250109",
+          "uetr": "20250109"
+        },
+        "paymentType": {
+          "categoryPurpose": "CONS"
+        },
+        "amount": {
+          "amount": "1000",
+          "currency": "USD"
+        },
+        "senderDepositoryInstitution": {
+          "senderABANumber": "121182904",
+          "senderShortName": "NORTH BAY CREDIT U",
+          "postalAddress": {
+            "StreetName": "Dream Road",
+            "BuildingNumber": "450",
+            "Room": "141",
+            "PostalCode": "60532",
+            "TownName": "Lisle",
+            "CountrySubDivision": "IL",
+            "Country": "US"
+          }
+        },
+        "receiverDepositoryInstitution": {
+          "receiverABANumber": "084106768",
+          "receiverShortName": "EVOLVE BANK & TRUST",
+          "postalAddress": {
+            "StreetName": "Dream Road",
+            "BuildingNumber": "450",
+            "Room": "141",
+            "PostalCode": "60532",
+            "TownName": "Lisle",
+            "CountrySubDivision": "IL",
+            "Country": "US"
+          }
+        },
+        "originator": {
+          "personal": {
+            "name": "JANE SMITH",
+            "postalAddress": {
+              "StreetName": "Dream Road",
+              "BuildingNumber": "450",
+              "Room": "141",
+              "PostalCode": "60532",
+              "TownName": "Lisle",
+              "CountrySubDivision": "IL",
+              "Country": "US"
+            },
+            "identifier": "550103129900943"
+          }
+        },
+        "beneficiary": {
+          "personal": {
+            "name": "JOHN DOE",
+            "postalAddress": {
+              "StreetName": "Dream Road",
+              "BuildingNumber": "450",
+              "Room": "141",
+              "PostalCode": "60532",
+              "TownName": "Lisle",
+              "CountrySubDivision": "IL",
+              "Country": "US"
+            },
+            "identifier": "9512227031535633"
+          }
+        }
+      }
+    }
+  ]
+}
+

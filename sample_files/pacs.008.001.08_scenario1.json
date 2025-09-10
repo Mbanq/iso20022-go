@@ -1,0 +1,115 @@
+{
+    "FIToFICstmrCdtTrf": {
+      "GrpHdr": {
+        "MsgId": "20230604111111111Sc01Step1MsgId",
+        "CreDtTm": "2023-06-04T10:55:26-04:00",
+        "NbOfTxs": "1",
+        "SttlmInf": {
+          "SttlmMtd": "CLRG",
+          "ClrSys": {
+            "Cd": "FDN"
+          }
+        }
+      },
+      "CdtTrfTxInf": [
+        {
+          "PmtId": {
+            "InstrId": "Scenario01InstrId001",
+            "EndToEndId": "Scenario01EtoEId001",
+            "UETR": "8a562c67-ca16-48ba-b074-65581be6f011"
+          },
+          "PmtTpInf": {
+            "LclInstrm": {
+              "Prtry": "FDNA"
+            },
+            "CtgyPurp": {
+              "Prtry": "CONS"
+            }
+          },
+          "IntrBkSttlmAmt": {
+            "Ccy": "USD",
+            "Text": "51.74"
+          },
+          "IntrBkSttlmDt": "2023-06-04",
+          "ChrgBr": "SLEV",
+          "InstgAgt": {
+            "FinInstnId": {
+              "ClrSysMmbId": {
+                "ClrSysId": {
+                  "Cd": "USABA"
+                },
+                "MmbId": "111111111"
+              }
+            }
+          },
+          "InstdAgt": {
+            "FinInstnId": {
+              "ClrSysMmbId": {
+                "ClrSysId": {
+                  "Cd": "USABA"
+                },
+                "MmbId": "333333333"
+              }
+            }
+          },
+          "Dbtr": {
+            "Nm": "Individual A",
+            "PstlAdr": {
+              "StrtNm": "Dream Road",
+              "BldgNb": "450",
+              "Room": "141",
+              "PstCd": "60532",
+              "TwnNm": "Lisle",
+              "CtrySubDvsn": "IL",
+              "Ctry": "US"
+            }
+          },
+          "DbtrAcct": {
+            "Id": {
+              "Othr": {
+                "Id": "44444444444"
+              }
+            }
+          },
+          "DbtrAgt": {
+            "FinInstnId": {
+              "ClrSysMmbId": {
+                "ClrSysId": {
+                  "Cd": "USABA"
+                },
+                "MmbId": "111111111"
+              },
+              "Nm": "BankA"
+            }
+          },
+          "CdtrAgt": {
+            "FinInstnId": {
+              "ClrSysMmbId": {
+                "ClrSysId": {
+                  "Cd": "USABA"
+                },
+                "MmbId": "333333333"
+              }
+            }
+          },
+          "Cdtr": {
+            "Nm": "Corporation B",
+            "PstlAdr": {
+              "PstBx": "6001",
+              "PstCd": "60197",
+              "TwnNm": "Carol Stream",
+              "CtrySubDvsn": "IL",
+              "Ctry": "US"
+            }
+          },
+          "CdtrAcct": {
+            "Id": {
+              "Othr": {
+                "Id": "55555555555"
+              }
+            }
+          }
+        }
+      ]
+    }
+  }

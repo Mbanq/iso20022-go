@@ -1,0 +1,90 @@
+{
+    "fedNowMessage": {
+      "creationDateTime": "2025-01-09T14:55:30-04:00",  
+      "identifier": {
+        "businessMessageId": "20250902725160144Sc01Step12",
+        "messageType": "pacs.004.001.10",
+        "messageId": "20250902725160144Sc01Step12",
+        "uetr": "8a562c67-ca16-48ba-b074-65581be6f011"
+      },
+      "originalIdentifier": {
+        "messageId": "20250902725160144Sc01Step14",
+        "messageType": "pacs.008.001.08",
+        "instructionId": "20250109",
+        "endToEndId": "20250109",
+        "uetr": "8a562c67-ca16-48ba-b074-65581be6f011",
+        "creationDateTime": "2025-01-09T10:55:26-04:00"
+      },
+      "amount": {
+        "amount": "51.74",
+        "currency": "USD"
+      },
+      "paymentReturn": {
+        "returnReason": "DUPL",
+        "additionalInformation": "Already Paid. Ref 20230603222222222MsgIdFirstPayment",
+        "returnedAmount": {
+            "amount": "51.74",
+            "currency": "USD"
+        }
+      },
+      "senderDepositoryInstitution": {
+        "senderABANumber": "121182904",
+        "senderShortName": "NORTH BAY CREDIT U",
+        "postalAddress": {
+              "StreetName": "Dream Road",
+              "BuildingNumber": "450",
+              "Room": "141",
+              "PostalCode": "60532",
+              "TownName": "Lisle",
+              "CountrySubDivision": "IL",
+              "Country": "US"
+        }
+      },
+      "receiverDepositoryInstitution": {
+        "receiverABANumber": "084106768",
+        "receiverShortName": "EVOLVE BANK & TRUST",
+        "postalAddress": {
+            "StreetName": "Dream Road",
+            "BuildingNumber": "450",
+            "Room": "141",
+            "PostalCode": "60532",
+            "TownName": "Lisle",
+            "CountrySubDivision": "IL",
+            "Country": "US"
+           
+      }
+        },
+      "originator": {
+        "personal": {
+          "name": "JANE SMITH",
+          "postalAddress": {
+            "StreetName": "Dream Road",
+            "BuildingNumber": "450",
+            "Room": "141",
+            "PostalCode": "60532",
+            "TownName": "Lisle",
+            "CountrySubDivision": "IL",
+            "Country": "US"
+          },
+          "identifier": "550103129900943"
+        }
+      },
+      "beneficiary": {
+        "personal": {
+          "name": "JOHN DOE",
+          "postalAddress": {
+            "StreetName": "Dream Road",
+            "BuildingNumber": "450",
+            "Room": "141",
+            "PostalCode": "60532",
+            "TownName": "Lisle",
+            "CountrySubDivision": "IL",
+            "Country": "US"
+          },
+          "identifier": "9512227031535633"
+        }
+      }
+    }
+   }
+
+  

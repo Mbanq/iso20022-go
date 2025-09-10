@@ -1,0 +1,32 @@
+{
+    "fedNowMessage": {
+      "creationDateTime": "2025-01-09T10:55:26-04:00",  
+      "identifier": {
+        "businessMessageId": "20250902725160144Sc01Step12",
+        "messageType": "pacs.002.001.10",
+        "messageId": "20250902725160144Sc01Step12"
+      },
+      "originalIdentifier": {
+        "messageId": "20250109",
+        "messageType": "pacs.008.001.08",
+        "instructionId": "20250109",
+        "endToEndId": "20250109",
+        "transactionId": "20250109",
+        "uetr": "e2e8f8f8-e8f8-48f8-b8f8-f8f8f8f8f8f8",
+        "creationDateTime": "2025-01-09T10:55:26-04:00"
+      },
+      "paymentStatus": {
+        "paymentStatus": "RJCT",
+        "statusReason": "AC00000",
+        "additionalInformation": "Invalid ABA Number"
+      },
+      "senderDepositoryInstitution": {
+        "senderABANumber": "121182904"
+      },
+      "receiverDepositoryInstitution": {
+        "receiverABANumber": "084106768"  
+      }
+    }
+   }
+
+

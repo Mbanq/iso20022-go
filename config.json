@@ -1,0 +1,14 @@
+{
+    "marketPractice": "frb.fednow.01",
+    "marketPracticeRegistry": "www2.swift.com/mystandards/#/group/Federal_Reserve_Financial_Services/FedNow_Service",
+    "localInstrument": {
+        "Prtry": "FDNA"
+    },
+    "settlementMethod": "CLRG",
+    "clearingSystemId": "USABA",
+    "chargeBearer": "SLEV",
+    "currency": "USD",
+    "clearingSystem": "FDN",
+    "frbId": "021150706",
+    "ispId": "725160144"
+}

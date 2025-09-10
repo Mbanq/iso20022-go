@@ -1,0 +1,35 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Go workspace file
+go.work
+go.work.sum
+
+# Env file
+.env
+
+# OS-specific files
+.DS_Store
+
+# ISO20022 XSD files
+Internal/XSD/fednow-incoming_external.xsd
+Internal/XSD/fednow-outgoing_external.xsd
+
+ISO20022/fednow_incoming_external
+ISO20022/fednow_outgoing_external
+
+
+
+# Generated files
+sample_files
+output.xml
