@@ -250,7 +250,8 @@ type Config struct {
   - pain.014.001.07 - Customer Credit Transfer Cancellation Request - WIP
 
 - **ADMI (Administration)**
-  - Various administrative message types - WIP
+  - admi.002.001.01 - Payment Status Report(Parsing only) - Available Now
+  - admi.004.001.01 - Payment Return(Parsing only) - WIP
 
 ## Requirements
 
