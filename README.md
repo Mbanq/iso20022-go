@@ -261,13 +261,11 @@ type Config struct {
 
 This project can be used to generate the message content for US Payment Rails, which utilize the ISO 20022 standard. However, the message envelope format for US Payment Rails is proprietary. Users must obtain the necessary proprietary XSD files from the Federal Reserve and integrate them to create complete US Payment Rails messages. This project does not include any proprietary information or files.
 
-For more information on US Payment Rails' ISO 20022 implementation and to access the required files, please visit the [Federal Reserve ISO 20022 Implementation Center](https://www.frbservices.org/resources/financial-services/wires/iso-20022-implementation-center).
-
 
 ### Important Notice on Proprietary Envelope
 The US Payment Rails envelope format is proprietary and must be implemented according to the Federal Reserve specifications. This library only generates the ISO 20022 message content and wraps them in the message envelope only if the propietory XSD is provided.
 
-For Fednow:
+#### For Fednow:
 
 [Get Access to Prorietory XSD & Fednow Documentation](https://www.frbservices.org/resources/financial-services/fednow/fednow-devrel)
 
@@ -278,7 +276,7 @@ For official information about Fednow ISO 20022 implementation, including envelo
 - [My Standards](https://www2.swift.com/mystandards/#/group/Federal_Reserve_Financial_Services/FedNow_Service)
 
 
-For Fedwire: 
+#### For Fedwire: 
 
 [Get Access to Prorietory XSD](https://www.frbservices.org/binaries/content/assets/crsocms/resources/financial-services/request-access-fedwire-funds-iso-20022-technical-guide.pdf)
 
@@ -290,13 +288,13 @@ For official information about Fedwire ISO 20022 implementation, including envel
 
 
 
-
 ## Acknowledgments
 
 We would like to thank the following projects and resources that made this library possible:
 
-- **ISO20022 Organization** - For providing comprehensive payment messaging standards
-- **Federal Reserve** - For FedNow service specifications and documentation
+- **ISO20022 Organization** - For providing comprehensive payment messaging standards. [ISO20022](https://www.iso20022.org/)
+- **Federal Reserve** - For FedNow service specifications and documentation. [Federal Reserve](https://www.frbservices.org/)
+- **MOOV** - For XSD2GO Module and fednow20022 Project which were crucial for building the Go structs from XSDs. [XSD2GO](https://github.com/moov-io/xsd2go) and [fednow20022](https://github.com/moov-io/fednow20022)
 - **Go Community** - For excellent XML and JSON handling libraries
 - **Contributors** - All developers who have contributed to this project
 
