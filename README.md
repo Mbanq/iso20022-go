@@ -237,30 +237,59 @@ type Config struct {
 ## Supported ISO20022 Messages
 
 - **PACS (Payment Clearing and Settlement)**
-  - pacs.008.001.08 - Customer Credit Transfer
-  - pacs.002.001.10 - Payment Status Report
-  - pacs.004.001.10 - Payment Return
-  - pacs.009.001.08 - Financial Institution Credit Transfer
-  - pacs.028.001.03 - FI To FI Payment Status Report
+  - pacs.008.001.08 - Customer Credit Transfer - Available Now
+  - pacs.002.001.10 - Payment Status Report - Available Now 
+  - pacs.004.001.10 - Payment Return - Available Now
+  - pacs.028.001.03 - FI To FI Payment Status Report - Available Now
 
 - **CAMT (Cash Management)**
-  - Multiple CAMT message types supported
+  - Multiple CAMT message types supported - WIP
 
 - **PAIN (Payment Initiation)**
-  - pain.013.001.07 - Customer Credit Transfer Initiation
-  - pain.014.001.07 - Customer Credit Transfer Cancellation Request
+  - pain.013.001.07 - Customer Credit Transfer Initiation - WIP
+  - pain.014.001.07 - Customer Credit Transfer Cancellation Request - WIP
 
 - **ADMI (Administration)**
-  - Various administrative message types
+  - Various administrative message types - WIP
 
 ## Requirements
 
 - Go 1.22 or higher
 - No external dependencies (uses only Go standard library)
 
-## Disclaimer
+## US Payment Rails
 
-*[Disclaimer section]*
+This project can be used to generate the message content for US Payment Rails, which utilize the ISO 20022 standard. However, the message envelope format for US Payment Rails is proprietary. Users must obtain the necessary proprietary XSD files from the Federal Reserve and integrate them to create complete US Payment Rails messages. This project does not include any proprietary information or files.
+
+For more information on US Payment Rails' ISO 20022 implementation and to access the required files, please visit the [Federal Reserve ISO 20022 Implementation Center](https://www.frbservices.org/resources/financial-services/wires/iso-20022-implementation-center).
+
+
+### Important Notice on Proprietary Envelope
+The US Payment Rails envelope format is proprietary and must be implemented according to the Federal Reserve specifications. This library only generates the ISO 20022 message content and wraps them in the message envelope only if the propietory XSD is provided.
+
+For Fednow:
+
+[Get Access to Prorietory XSD & Fednow Documentation](https://www.frbservices.org/resources/financial-services/fednow/fednow-devrel)
+
+For official information about Fednow ISO 20022 implementation, including envelope specifications, please consult the following resources:
+
+- [To Learn More about Fednow](https://explore.fednow.org/guided-journey)
+- [Fednow Documentation](https://www.frbservices.org/resources/financial-services/fednow/fednow-devrel)
+- [My Standards](https://www2.swift.com/mystandards/#/group/Federal_Reserve_Financial_Services/FedNow_Service)
+
+
+For Fedwire: 
+
+[Get Access to Prorietory XSD](https://www.frbservices.org/binaries/content/assets/crsocms/resources/financial-services/request-access-fedwire-funds-iso-20022-technical-guide.pdf)
+
+For official information about Fedwire ISO 20022 implementation, including envelope specifications, please consult the following resources:
+
+- [Federal Reserve ISO 20022 Implementation Center](https://www.frbservices.org/resources/financial-services/wires/iso-20022-implementation-center)
+- [MyStandards platform](https://www2.swift.com/mystandards/#/group/Federal_Reserve_Financial_Services/Fedwire_Funds_Service)
+- [Fedwire Funds Service ISO 20022 Implementation Guide and Technical Guide](https://www.frbservices.org/resources/financial-services/wires/iso-20022-implementation-center)
+
+
+
 
 ## Acknowledgments
 
@@ -275,9 +304,11 @@ We would like to thank the following projects and resources that made this libra
 
 Contributions are welcome and will be accepting via pull requests soon. Please Star and Watch the Repository for updates. You can create the Pull Requests to raise any issues, vulnerabilities, suggestions or feature requests.
 
+[GitHub Issues page](https://github.com/Mbanq/iso20022/issues).
+
 ## License
 
-*[License information to be added]*
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
 
 ---
 
