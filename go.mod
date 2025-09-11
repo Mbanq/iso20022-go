@@ -1,5 +1,5 @@
-module github.com/Mbanq/iso20022-go
+module github.com/mbanq/iso20022-go
 
 go 1.22
 
-replace github.com/Mbanq/iso20022-go => ./
+replace github.com/mbanq/iso20022-go => ./

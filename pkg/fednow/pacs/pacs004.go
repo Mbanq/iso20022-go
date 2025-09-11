@@ -5,9 +5,9 @@
 package pacs
 
 import (
-	pacs004 "github.com/Mbanq/iso20022-go/ISO20022/pacs_004_001_10"
-	"github.com/Mbanq/iso20022-go/pkg/common"
-	"github.com/Mbanq/iso20022-go/pkg/fednow/config"
+	pacs004 "github.com/mbanq/iso20022-go/ISO20022/pacs_004_001_10"
+	"github.com/mbanq/iso20022-go/pkg/common"
+	"github.com/mbanq/iso20022-go/pkg/fednow/config"
 )
 
 // BuildPacs004Struct creates a pacs.004.001.10 message from a FedNowMessageRtn struct

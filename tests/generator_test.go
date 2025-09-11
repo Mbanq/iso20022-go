@@ -6,11 +6,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Mbanq/iso20022-go/ISO20022/pacs_008_001_08"
-	"github.com/Mbanq/iso20022-go/pkg/common"
-	"github.com/Mbanq/iso20022-go/pkg/fednow"
-	"github.com/Mbanq/iso20022-go/pkg/fednow/config"
-	"github.com/Mbanq/iso20022-go/pkg/fednow/pacs"
+	"github.com/mbanq/iso20022-go/ISO20022/pacs_008_001_08"
+	"github.com/mbanq/iso20022-go/pkg/common"
+	"github.com/mbanq/iso20022-go/pkg/fednow"
+	"github.com/mbanq/iso20022-go/pkg/fednow/config"
+	"github.com/mbanq/iso20022-go/pkg/fednow/pacs"
 )
 
 func BenchmarkGenerate(b *testing.B) {

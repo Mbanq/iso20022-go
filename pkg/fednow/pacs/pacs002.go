@@ -5,11 +5,11 @@ import (
 	"encoding/xml"
 	"time"
 
-	head "github.com/Mbanq/iso20022-go/ISO20022/head_001_001_02"
-	"github.com/Mbanq/iso20022-go/ISO20022/pacs_002_001_10"
-	"github.com/Mbanq/iso20022-go/ISO20022/pacs_008_001_08"
-	"github.com/Mbanq/iso20022-go/pkg/common"
-	"github.com/Mbanq/iso20022-go/pkg/fednow/config"
+	head "github.com/mbanq/iso20022-go/ISO20022/head_001_001_02"
+	"github.com/mbanq/iso20022-go/ISO20022/pacs_002_001_10"
+	"github.com/mbanq/iso20022-go/ISO20022/pacs_008_001_08"
+	"github.com/mbanq/iso20022-go/pkg/common"
+	"github.com/mbanq/iso20022-go/pkg/fednow/config"
 )
 
 func BuildPacs002Struct(message FedNowMessageACK, msgConfig *config.Config) (*pacs_002_001_10.Document, error) {

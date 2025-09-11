@@ -8,12 +8,12 @@ import (
 	"io"
 	"strings"
 
-	head "github.com/Mbanq/iso20022-go/ISO20022/head_001_001_02"
-	pacs002 "github.com/Mbanq/iso20022-go/ISO20022/pacs_002_001_10"
-	pacs008 "github.com/Mbanq/iso20022-go/ISO20022/pacs_008_001_08"
-	admi002 "github.com/Mbanq/iso20022-go/ISO20022/admi_002_001_01"
-	"github.com/Mbanq/iso20022-go/pkg/fednow/admi"
-	"github.com/Mbanq/iso20022-go/pkg/fednow/pacs"
+	admi002 "github.com/mbanq/iso20022-go/ISO20022/admi_002_001_01"
+	head "github.com/mbanq/iso20022-go/ISO20022/head_001_001_02"
+	pacs002 "github.com/mbanq/iso20022-go/ISO20022/pacs_002_001_10"
+	pacs008 "github.com/mbanq/iso20022-go/ISO20022/pacs_008_001_08"
+	"github.com/mbanq/iso20022-go/pkg/fednow/admi"
+	"github.com/mbanq/iso20022-go/pkg/fednow/pacs"
 )
 
 // Parse an incoming pacs.008 XML file and return a JSON representation.

@@ -6,7 +6,7 @@ import (
 	"encoding/xml"
 	"time"
 
-	"github.com/Mbanq/iso20022-go/pkg/common"
+	"github.com/mbanq/iso20022-go/pkg/common"
 )
 
 // Element

@@ -3,9 +3,9 @@ package bah
 import (
 	"time"
 
-	bah "github.com/Mbanq/iso20022-go/ISO20022/head_001_001_02"
-	"github.com/Mbanq/iso20022-go/pkg/common"
-	"github.com/Mbanq/iso20022-go/pkg/fednow/config"
+	bah "github.com/mbanq/iso20022-go/ISO20022/head_001_001_02"
+	"github.com/mbanq/iso20022-go/pkg/common"
+	"github.com/mbanq/iso20022-go/pkg/fednow/config"
 )
 
 func BuildBah(messageId string, msgConfig *config.Config, msgType string) (*bah.BusinessApplicationHeaderV02, error) {

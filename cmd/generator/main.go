@@ -7,9 +7,9 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/Mbanq/iso20022-go/pkg/fednow"
-	"github.com/Mbanq/iso20022-go/pkg/fednow/config"
-	"github.com/Mbanq/iso20022-go/pkg/fednow/pacs"
+	"github.com/mbanq/iso20022-go/pkg/fednow"
+	"github.com/mbanq/iso20022-go/pkg/fednow/config"
+	"github.com/mbanq/iso20022-go/pkg/fednow/pacs"
 )
 
 func main() {

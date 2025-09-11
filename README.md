@@ -113,7 +113,7 @@ import (
     "io/ioutil"
     "log"
     
-    "github.com/Mbanq/iso20022-go/pkg/fednow"
+    "github.com/mbanq/iso20022-go/pkg/fednow"
 )
 
 func main() {
@@ -157,7 +157,7 @@ import (
     "log"
     "strings"
     
-    pacs "github.com/Mbanq/iso20022-go/ISO20022/pacs_008_001_08"
+    pacs "github.com/mbanq/iso20022-go/ISO20022/pacs_008_001_08"
 )
 
 func main() {

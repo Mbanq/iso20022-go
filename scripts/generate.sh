@@ -8,7 +8,7 @@ mkdir -p ISO20022
 files=($(find ./Internal/XSD -name "*.xsd" | sort -u))
 for file in "${files[@]}"
 do
-    moovio_xsd2go convert "$file" github.com/Mbanq/iso20022-go ISO20022
+    moovio_xsd2go convert "$file" github.com/mbanq/iso20022-go ISO20022
 done
 
 # Use our custom Time types

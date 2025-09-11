@@ -18,7 +18,7 @@ func main() {
 		old string
 		new string
 	}{
-		{`"time"`, `"github.com/Mbanq/iso20022-go/pkg/common"`},
+		{`"time"`, `"github.com/mbanq/iso20022-go/pkg/common"`},
 		{`type ISODate time.Time`, ``},
 		{` ISODate `, ` common.ISODate `},
 		{` *ISODate `, ` *common.ISODate `},

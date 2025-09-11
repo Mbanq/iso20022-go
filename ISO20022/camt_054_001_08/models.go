@@ -5,7 +5,7 @@ package camt_054_001_08
 import (
 	"encoding/xml"
 
-	"github.com/Mbanq/iso20022-go/pkg/common"
+	"github.com/mbanq/iso20022-go/pkg/common"
 )
 
 // Element

@@ -3,12 +3,11 @@ package pacs
 import (
 	"encoding/json"
 
-	"github.com/Mbanq/iso20022-go/ISO20022/pacs_002_001_10"
-	"github.com/Mbanq/iso20022-go/ISO20022/pacs_004_001_10"
-	"github.com/Mbanq/iso20022-go/ISO20022/pacs_008_001_08"
-	"github.com/Mbanq/iso20022-go/pkg/common"
+	"github.com/mbanq/iso20022-go/ISO20022/pacs_002_001_10"
+	"github.com/mbanq/iso20022-go/ISO20022/pacs_004_001_10"
+	"github.com/mbanq/iso20022-go/ISO20022/pacs_008_001_08"
+	"github.com/mbanq/iso20022-go/pkg/common"
 )
-
 
 type FedNowMessageCCT struct {
 	FedNowMsg FedNowDetails `json:"fedNowMessage"`

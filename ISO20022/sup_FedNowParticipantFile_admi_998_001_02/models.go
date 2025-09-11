@@ -5,7 +5,7 @@ package sup_FedNowParticipantFile_admi_998_001_02
 import (
 	"encoding/xml"
 
-	"github.com/Mbanq/iso20022-go/pkg/common"
+	"github.com/mbanq/iso20022-go/pkg/common"
 )
 
 // Element

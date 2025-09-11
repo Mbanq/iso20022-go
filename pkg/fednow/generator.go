@@ -9,14 +9,14 @@ import (
 	"sync"
 	"time"
 
-	head "github.com/Mbanq/iso20022-go/ISO20022/head_001_001_02"
-	pacs002 "github.com/Mbanq/iso20022-go/ISO20022/pacs_002_001_10"
-	pacs004 "github.com/Mbanq/iso20022-go/ISO20022/pacs_004_001_10"
-	pacs008 "github.com/Mbanq/iso20022-go/ISO20022/pacs_008_001_08"
-	"github.com/Mbanq/iso20022-go/pkg/common"
-	bah "github.com/Mbanq/iso20022-go/pkg/fednow/bah"
-	config "github.com/Mbanq/iso20022-go/pkg/fednow/config"
-	"github.com/Mbanq/iso20022-go/pkg/fednow/pacs"
+	head "github.com/mbanq/iso20022-go/ISO20022/head_001_001_02"
+	pacs002 "github.com/mbanq/iso20022-go/ISO20022/pacs_002_001_10"
+	pacs004 "github.com/mbanq/iso20022-go/ISO20022/pacs_004_001_10"
+	pacs008 "github.com/mbanq/iso20022-go/ISO20022/pacs_008_001_08"
+	"github.com/mbanq/iso20022-go/pkg/common"
+	bah "github.com/mbanq/iso20022-go/pkg/fednow/bah"
+	config "github.com/mbanq/iso20022-go/pkg/fednow/config"
+	"github.com/mbanq/iso20022-go/pkg/fednow/pacs"
 )
 
 type xsdCacheEntry struct {
@@ -121,7 +121,6 @@ func handlePacs002(cfg *config.Config, message FedNowMessage) (string, string, e
 
 	return bah, pacs002, nil
 }
-
 
 func handlePacs004(cfg *config.Config, message FedNowMessage) (string, string, error) {
 	msg, ok := message.(pacs.FedNowMessageRtn)

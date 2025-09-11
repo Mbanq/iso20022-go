@@ -1,9 +1,9 @@
 package admi
 
 import (
-	"github.com/Mbanq/iso20022-go/ISO20022/admi_002_001_01"
-	head "github.com/Mbanq/iso20022-go/ISO20022/head_001_001_02"
-	"github.com/Mbanq/iso20022-go/pkg/common"
+	"github.com/mbanq/iso20022-go/ISO20022/admi_002_001_01"
+	head "github.com/mbanq/iso20022-go/ISO20022/head_001_001_02"
+	"github.com/mbanq/iso20022-go/pkg/common"
 )
 
 type FedNowMessageADM struct {

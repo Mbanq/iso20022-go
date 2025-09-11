@@ -5,7 +5,7 @@ package pacs_004_001_10
 import (
 	"encoding/xml"
 
-	"github.com/Mbanq/iso20022-go/pkg/common"
+	"github.com/mbanq/iso20022-go/pkg/common"
 )
 
 // Element
