@@ -28,7 +28,9 @@ Internal/XSD/fednow-outgoing_external.xsd
 ISO20022/fednow_incoming_external
 ISO20022/fednow_outgoing_external
 
-
+#Key Exchange files
+ISO20022/FednowKeyExchange/
+ISO20022/sup_FedNowParticipantFile_admi_998_001_02
 
 # Generated files
 sample_files
