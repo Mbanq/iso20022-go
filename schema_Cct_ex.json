@@ -5,7 +5,6 @@
         "businessMessageId": "20250902725160144Sc01Step12",
         "messageId": "20250902725160144Sc01Step12",
         "instructionId": "Scenario01InstrId001",
-        "endToEndId": "Scenario01EtoEId001",
         "transactionId": "BankARefNum000001",
         "uetr": "8a562c67-ca16-48ba-b074-65581be6f011"
       },
@@ -18,30 +17,11 @@
       },
       "senderDepositoryInstitution": {
         "senderABANumber": "121182904",
-        "senderShortName": "Mbq Banq",
-        "postalAddress": {
-              "StreetName": "Dream Road",
-              "BuildingNumber": "450",
-              "Room": "141",
-              "PostalCode": "60532",
-              "TownName": "Lisle",
-              "CountrySubDivision": "IL",
-              "Country": "US"
-        }
+        "senderShortName": "Mbq Banq"
       },
       "receiverDepositoryInstitution": {
         "receiverABANumber": "999999997",
-        "receiverShortName": "Fedbank",
-        "postalAddress": {
-            "StreetName": "Dream Road",
-            "BuildingNumber": "450",
-            "Room": "141",
-            "PostalCode": "60532",
-            "TownName": "Lisle",
-            "CountrySubDivision": "IL",
-            "Country": "US"
-           
-      }
+        "receiverShortName": "Fedbank"
     },
       "originator": {
         "personal": {
