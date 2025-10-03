@@ -2,7 +2,6 @@ package fednow
 
 import (
 	"bytes"
-	"encoding/json"
 	"encoding/xml"
 	"errors"
 	"io"
@@ -17,7 +16,7 @@ import (
 )
 
 // Parse an incoming pacs.008 XML file and return a JSON representation.
-func Parse(xmlData []byte) ([]byte, error) {
+func Parse(xmlData []byte) (FedNowMessage, error) {
 	decoder := xml.NewDecoder(bytes.NewReader(xmlData))
 	var appHdr head.BusinessApplicationHeaderV02
 	foundAppHdr := false
@@ -46,7 +45,7 @@ func Parse(xmlData []byte) ([]byte, error) {
 	}
 
 	// Now, decode the Document based on the message type from AppHdr
-	var fednowMsg interface{}
+	var fednowMsg FedNowMessage
 	var err error
 
 	msgType := string(appHdr.MsgDefIdr)
@@ -79,5 +78,5 @@ func Parse(xmlData []byte) ([]byte, error) {
 	}
 
 	// Marshal the struct to JSON
-	return json.MarshalIndent(fednowMsg, "", "  ")
+	return fednowMsg, nil
 }

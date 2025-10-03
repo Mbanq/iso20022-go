@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -24,9 +25,14 @@ func main() {
 	}
 
 	// Call the parser with the file content
-	jsonOutput, err := fednow.Parse(xmlFile)
+	fednowMsg, err := fednow.Parse(xmlFile)
 	if err != nil {
 		fmt.Println("Error parsing XML:", err)
+		os.Exit(1)
+	}
+	jsonOutput, err := json.MarshalIndent(fednowMsg, "", "  ")
+	if err != nil {
+		fmt.Println("Error marshaling JSON:", err)
 		os.Exit(1)
 	}
 
