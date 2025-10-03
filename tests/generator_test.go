@@ -33,6 +33,26 @@ func BenchmarkGenerate(b *testing.B) {
 		return &t
 	}
 
+	strPtr140 := func(s string) *pacs_008_001_08.Max140Text {
+		t := pacs_008_001_08.Max140Text(s)
+		return &t
+	}
+
+	strPtr70 := func(s string) *pacs_008_001_08.Max70Text {
+		t := pacs_008_001_08.Max70Text(s)
+		return &t
+	}
+
+	strPtr16 := func(s string) *pacs_008_001_08.Max16Text {
+		t := pacs_008_001_08.Max16Text(s)
+		return &t
+	}
+
+	countryCodePtr := func(s string) *pacs_008_001_08.CountryCode {
+		t := pacs_008_001_08.CountryCode(s)
+		return &t
+	}
+
 	message := pacs.FedNowMessageCCT{
 		FedNowMsg: pacs.FedNowDetails{
 			CreationDateTime: common.ISODateTime(time.Now()),
@@ -55,6 +75,30 @@ func BenchmarkGenerate(b *testing.B) {
 			},
 			ReceiverDI: pacs.FedNowDepositoryInstitution{
 				ReceiverABANumber: "084106768",
+			},
+			Originator: pacs.FedNowParty{
+				Personal: pacs.FedNowPersonal{
+					Name: strPtr140("JANE SMITH"),
+					Address: pacs.FedNowPstlAdr{
+						StreetName:         strPtr70("Dream Road"),
+						TownName:           strPtr("Lisle"),
+						CountrySubdivision: strPtr("IL"),
+						PostalCode:         strPtr16("60532"),
+						Country:            countryCodePtr("US"),
+					},
+				},
+			},
+			Beneficiary: pacs.FedNowParty{
+				Personal: pacs.FedNowPersonal{
+					Name: strPtr140("JOHN DOE"),
+					Address: pacs.FedNowPstlAdr{
+						StreetName:         strPtr70("Dream Road"),
+						TownName:           strPtr("Lisle"),
+						CountrySubdivision: strPtr("IL"),
+						PostalCode:         strPtr16("60532"),
+						Country:            countryCodePtr("US"),
+					},
+				},
 			},
 		},
 	}

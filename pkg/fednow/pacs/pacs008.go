@@ -15,15 +15,30 @@ func BuildPacs008Struct(message FedNowMessageCCT, msgConfig *config.Config) (*pa
 
 	fedMsg := message.FedNowMsg
 
+	// Assigning Configuration Values
 	cd := pacs_008_001_08.ExternalCashClearingSystem1Code(msgConfig.ClearingSystem)
 	clearingSystemId := pacs_008_001_08.ExternalClearingSystemIdentification1Code(msgConfig.ClearingSystemId)
 	categoryPurpose := pacs_008_001_08.Max35Text(*fedMsg.PaymentType.CategoryPurpose)
 
+	if fedMsg.Identifier.EndToEndID == "" {
+		fedMsg.Identifier.EndToEndID = "NOTPROVIDED"
+	}
+
+	// Address Validation
+	if err := fedMsg.Originator.Personal.Address.ValidateAddress(); err != nil {
+		return nil, fmt.Errorf("invalid originator address: %w", err)
+	}
+	if err := fedMsg.Beneficiary.Personal.Address.ValidateAddress(); err != nil {
+		return nil, fmt.Errorf("invalid beneficiary address: %w", err)
+	}
+
+	// Amount Validation
 	amountFloat, err := fedMsg.Amount.Text.Float64()
 	if err != nil {
 		return nil, fmt.Errorf("invalid amount format: %w", err)
 	}
 
+	// Building the Pacs008 Struct
 	pacsDoc := &pacs_008_001_08.Document{
 		XMLName: xml.Name{Space: "urn:iso:std:iso:20022:tech:xsd:pacs.008.001.08", Local: "Document"},
 		FIToFICstmrCdtTrf: pacs_008_001_08.FIToFICustomerCreditTransferV08{
