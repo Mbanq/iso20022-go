@@ -23,7 +23,7 @@ func GetPublicKeys(xmlData []byte) (keymanagement.FedNowKeyExchangeMessage, erro
 				if err := decoder.DecodeElement(&keyResponses, &se); err != nil {
 					return keymanagement.FedNowKeyExchangeMessage{}, err
 				}
-				return keymanagement.Parse(&keyResponses)
+				return keymanagement.ParseGetPublciKeys(&keyResponses)
 			}
 		}
 	}

@@ -4,7 +4,7 @@ import (
 	"github.com/mbanq/iso20022-go/ISO20022/FedNowKeyExchange"
 )
 
-func Parse(keyDoc *FedNowKeyExchange.FedNowPublicKeyResponses) (FedNowKeyExchangeMessage, error) {
+func ParseGetPublciKeys(keyDoc *FedNowKeyExchange.FedNowPublicKeyResponses) (FedNowKeyExchangeMessage, error) {
 
 	var publicKeys []FednowPublicKeys
 
