@@ -13,10 +13,12 @@ import (
 	pacs002 "github.com/mbanq/iso20022-go/ISO20022/pacs_002_001_10"
 	pacs004 "github.com/mbanq/iso20022-go/ISO20022/pacs_004_001_10"
 	pacs008 "github.com/mbanq/iso20022-go/ISO20022/pacs_008_001_08"
+	pain013 "github.com/mbanq/iso20022-go/ISO20022/pain_013_001_07"
 	"github.com/mbanq/iso20022-go/pkg/common"
 	bah "github.com/mbanq/iso20022-go/pkg/fednow/bah"
 	config "github.com/mbanq/iso20022-go/pkg/fednow/config"
 	"github.com/mbanq/iso20022-go/pkg/fednow/pacs"
+	"github.com/mbanq/iso20022-go/pkg/fednow/pain"
 )
 
 type xsdCacheEntry struct {
@@ -91,6 +93,7 @@ var messageHandlers = map[string]messageHandler{
 	"pacs.008.001.08": handlePacs008,
 	"pacs.002.001.10": handlePacs002,
 	"pacs.004.001.10": handlePacs004,
+	"pain.013.001.07": handlePain013,
 }
 
 func handlePacs002(cfg *config.Config, message FedNowMessage) (string, string, error) {
@@ -149,6 +152,35 @@ func handlePacs004(cfg *config.Config, message FedNowMessage) (string, string, e
 	pacs004 := strings.Replace(string(documentPayload), "<Document>", "<Document xmlns=\"urn:iso:std:iso:20022:tech:xsd:pacs.004.001.10\">", 1)
 
 	return bah, pacs004, nil
+}
+
+func handlePain013(cfg *config.Config, message FedNowMessage) (string, string, error) {
+	msg, ok := message.(pain.FedNowMessageRFP)
+	if !ok {
+		return "", "", fmt.Errorf("invalid message type for pain.013.001.07")
+	}
+
+	appHdr, document, err := GeneratePain013("pain.013.001.07", cfg, msg)
+	if err != nil {
+		return "", "", err
+	}
+
+	appHdrPayload, err := xml.MarshalIndent(appHdr, "            ", "    ")
+	if err != nil {
+		return "", "", fmt.Errorf("error marshalling AppHdr: %v", err)
+	}
+
+	bah := strings.Replace(string(appHdrPayload), "<BusinessApplicationHeaderV02>", "<AppHdr xmlns=\"urn:iso:std:iso:20022:tech:xsd:head.001.001.02\">", 1)
+	bah = strings.Replace(bah, "</BusinessApplicationHeaderV02>", "</AppHdr>", 1)
+
+	documentPayload, err := xml.MarshalIndent(document, "            ", "    ")
+	if err != nil {
+		return "", "", fmt.Errorf("error marshalling document: %v", err)
+	}
+
+	pain013 := strings.Replace(string(documentPayload), "<Document>", "<Document xmlns=\"urn:iso:std:iso:20022:tech:xsd:pain.013.001.07\">", 1)
+
+	return bah, pain013, nil
 }
 
 func GeneratePacs004(messageType string, msgConfig *config.Config, message pacs.FedNowMessageRtn) (*head.BusinessApplicationHeaderV02, *pacs004.Document, error) {
@@ -230,6 +262,25 @@ func GeneratePacs008(messageType string, msgConfig *config.Config, message pacs.
 	}
 
 	document, err := pacs.BuildPacs008Struct(message, msgConfig)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return appHdr, document, nil
+}
+
+func GeneratePain013(messageType string, msgConfig *config.Config, message pain.FedNowMessageRFP) (*head.BusinessApplicationHeaderV02, *pain013.Document, error) {
+
+	now := time.Now().In(common.EstLocation)
+	// Override creation date and time with current EST time
+	message.FedNowMsg.CreationDateTime = common.ISODateTime(now)
+
+	appHdr, err := bah.BuildBah(string(message.FedNowMsg.Identifier.MessageID), msgConfig, messageType)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	document, err := pain.BuildPain013Struct(message, msgConfig)
 	if err != nil {
 		return nil, nil, err
 	}

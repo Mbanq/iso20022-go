@@ -10,6 +10,7 @@ import (
 	"github.com/mbanq/iso20022-go/pkg/fednow"
 	"github.com/mbanq/iso20022-go/pkg/fednow/config"
 	"github.com/mbanq/iso20022-go/pkg/fednow/pacs"
+	"github.com/mbanq/iso20022-go/pkg/fednow/pain"
 )
 
 func main() {
@@ -60,6 +61,13 @@ func main() {
 		var msg pacs.FedNowMessageRtn
 		if err := json.Unmarshal(jsonFile, &msg); err != nil {
 			fmt.Printf("Error unmarshalling json for pacs.004: %s\n", err)
+			return
+		}
+		fednowMessage = msg
+	case "pain.013.001.07":
+		var msg pain.FedNowMessageRFP
+		if err := json.Unmarshal(jsonFile, &msg); err != nil {
+			fmt.Printf("Error unmarshalling json for pain.013: %s\n", err)
 			return
 		}
 		fednowMessage = msg
