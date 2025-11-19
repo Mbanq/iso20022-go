@@ -33,8 +33,8 @@ func BuildPacs002Struct(message FedNowMessageACK, msgConfig *config.Config) (*pa
 			TxInfAndSts: []pacs_002_001_10.PaymentTransaction110{
 				{
 					OrgnlGrpInf: &pacs_002_001_10.OriginalGroupInformation29{
-						OrgnlMsgId:   pacs_002_001_10.Max35Text(fedMsg.Identifier.MessageID),
-						OrgnlMsgNmId: pacs_002_001_10.Max35Text(fedMsg.Identifier.MessageType),
+						OrgnlMsgId:   pacs_002_001_10.Max35Text(fedMsg.OriginalIdentifier.MessageID),
+						OrgnlMsgNmId: pacs_002_001_10.Max35Text(fedMsg.OriginalIdentifier.MessageType),
 						OrgnlCreDtTm: &creationTime,
 					},
 					TxSts: fedMsg.PaymentStatus.PaymentStatus,
