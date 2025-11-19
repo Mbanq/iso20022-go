@@ -58,7 +58,6 @@ func BuildPacs008Struct(message FedNowMessageCCT, msgConfig *config.Config) (*pa
 					PmtId: pacs_008_001_08.PaymentIdentification7{
 						InstrId:    fedMsg.Identifier.InstructionID,
 						EndToEndId: fedMsg.Identifier.EndToEndID,
-						TxId:       fedMsg.Identifier.TransactionID,
 					},
 					PmtTpInf: &pacs_008_001_08.PaymentTypeInformation28{
 						LclInstrm: &msgConfig.LocalInstrument,
@@ -153,7 +152,16 @@ func BuildPacs008Struct(message FedNowMessageCCT, msgConfig *config.Config) (*pa
 			},
 		},
 	}
+
+	if fedMsg.Identifier.UETR != "" {
+		pacsDoc.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR = &fedMsg.Identifier.UETR
+	}
+
+	if *fedMsg.Identifier.TransactionID != "" {
+		pacsDoc.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.TxId = fedMsg.Identifier.TransactionID
+	}
 	return pacsDoc, nil
+
 }
 
 func BuildPacs008(payload []byte, config *config.Config) (*pacs_008_001_08.Document, error) {
