@@ -3,7 +3,6 @@ package common
 import (
 	"fmt"
 	"time"
-	_ "time/tzdata"
 )
 
 var EstLocation *time.Location
