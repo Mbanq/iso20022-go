@@ -104,7 +104,30 @@ func ParsePacs002(appHdr head.BusinessApplicationHeaderV02, document pacs_002_00
 	fitofipmtstsrpt := document.FIToFIPmtStsRpt
 	txinfandsts := fitofipmtstsrpt.TxInfAndSts[0]
 
-	orgnlInstrId := pacs_008_001_08.Max35Text(*txinfandsts.OrgnlInstrId)
+	var orgnlInstrId *pacs_008_001_08.Max35Text
+	if txinfandsts.OrgnlInstrId != nil {
+		val := pacs_008_001_08.Max35Text(*txinfandsts.OrgnlInstrId)
+		orgnlInstrId = &val
+	}
+
+	var orgnlMsgId pacs_008_001_08.Max35Text
+	var orgnlMsgNmId pacs_008_001_08.Max35Text
+	var orgnlCreDtTm common.ISODateTime
+	if txinfandsts.OrgnlGrpInf != nil {
+		orgnlMsgId = pacs_008_001_08.Max35Text(txinfandsts.OrgnlGrpInf.OrgnlMsgId)
+		orgnlMsgNmId = pacs_008_001_08.Max35Text(txinfandsts.OrgnlGrpInf.OrgnlMsgNmId)
+		if txinfandsts.OrgnlGrpInf.OrgnlCreDtTm != nil {
+			orgnlCreDtTm = common.ISODateTime(*txinfandsts.OrgnlGrpInf.OrgnlCreDtTm)
+		}
+	}
+
+	var orgnlEndToEndId pacs_008_001_08.Max35Text
+	if txinfandsts.OrgnlEndToEndId != nil {
+		orgnlEndToEndId = pacs_008_001_08.Max35Text(*txinfandsts.OrgnlEndToEndId)
+	}
+
+	senderABANumber := extractClrSysMemberID(appHdr.Fr)
+	receiverABANumber := extractClrSysMemberID(appHdr.To)
 
 	fednowMsg := FedNowMessageACK{
 		FedNowMsg: FedNowACK{
@@ -115,20 +138,20 @@ func ParsePacs002(appHdr head.BusinessApplicationHeaderV02, document pacs_002_00
 				CreationDateTime:  common.ISODateTime(appHdr.CreDt),
 			},
 			OriginalIdentifier: FedNowIdentifier{
-				MessageID:        pacs_008_001_08.Max35Text(txinfandsts.OrgnlGrpInf.OrgnlMsgId),
-				MessageType:      pacs_008_001_08.Max35Text(txinfandsts.OrgnlGrpInf.OrgnlMsgNmId),
-				InstructionID:    &orgnlInstrId,
-				EndToEndID:       pacs_008_001_08.Max35Text(*txinfandsts.OrgnlEndToEndId),
-				CreationDateTime: common.ISODateTime(*txinfandsts.OrgnlGrpInf.OrgnlCreDtTm),
+				MessageID:        orgnlMsgId,
+				MessageType:      orgnlMsgNmId,
+				InstructionID:    orgnlInstrId,
+				EndToEndID:       orgnlEndToEndId,
+				CreationDateTime: orgnlCreDtTm,
 			},
 			PaymentStatus: PaymentStatus{
 				PaymentStatus: txinfandsts.TxSts,
 			},
 			SenderDI: FedNowDepositoryInstitution{
-				SenderABANumber: pacs_008_001_08.Max35Text(appHdr.Fr.FIId.FinInstnId.ClrSysMmbId.MmbId),
+				SenderABANumber: senderABANumber,
 			},
 			ReceiverDI: FedNowDepositoryInstitution{
-				ReceiverABANumber: pacs_008_001_08.Max35Text(appHdr.To.FIId.FinInstnId.ClrSysMmbId.MmbId),
+				ReceiverABANumber: receiverABANumber,
 			},
 		},
 	}
