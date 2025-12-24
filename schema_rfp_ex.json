@@ -1,0 +1,72 @@
+{
+    "fedNowMessage": {
+      "creationDateTime": "2025-01-09T10:55:26-04:00",  
+      "identifier": {
+        "businessMessageId": "20250902725160144Sc01Step12",
+        "messageId": "20250902725160144Sc01Step12",
+        "messageType": "pain.013.001.07",
+        "instructionId": "Scenario01InstrId001",
+        "transactionId": "BankARefNum000001",
+        "uetr": "8a562c67-ca16-48ba-b074-65581be6f011"
+      },
+      "paymentType": {
+        "categoryPurpose": "CONS"
+      },
+      "amount": {
+        "amount": "1000",
+        "currency": "USD"
+      },
+      "executionInfo":{
+        "initiatingParty":"BankA",
+        "initiatingPartyAddress":{
+          "streetName":"123 Main St",
+          "buildingNumber":"123",
+          "room":"123",
+          "postalCode":"12345",
+          "townName":"Town",
+          "countrySubDivision":"State",
+          "country":"US"
+        },
+        "executionDate":"2025-01-09T10:55:26-04:00",
+        "expiryDate":"2025-01-09T10:55:26-04:00"
+      },
+      "senderDepositoryInstitution": {
+        "senderABANumber": "121182904",
+        "senderShortName": "Mbq Banq"
+      },
+      "receiverDepositoryInstitution": {
+        "receiverABANumber": "999999997",
+        "receiverShortName": "Fedbank"
+    },
+      "originator": {
+        "personal": {
+          "name": "JANE SMITH",
+          "postalAddress": {
+            "StreetName": "Dream Road",
+            "BuildingNumber": "450",
+            "Room": "141",
+            "PostalCode": "60532",
+            "TownName": "Lisle",
+            "CountrySubDivision": "IL",
+            "Country": "US"
+          },
+          "identifier": "550103129900943"
+        }
+      },
+      "beneficiary": {
+        "personal": {
+          "name": "JOHN DOE",
+          "postalAddress": {
+            "StreetName": "Dream Road",
+            "BuildingNumber": "450",
+            "Room": "141",
+            "PostalCode": "60532",
+            "TownName": "Lisle",
+            "CountrySubDivision": "IL",
+            "Country": "US"
+          },
+          "identifier": "9999999971111111"
+        }
+      }
+    }
+}

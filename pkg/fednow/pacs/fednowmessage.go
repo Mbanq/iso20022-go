@@ -2,6 +2,8 @@ package pacs
 
 import (
 	"encoding/json"
+	"fmt"
+	"strings"
 
 	"github.com/mbanq/iso20022-go/ISO20022/pacs_002_001_10"
 	"github.com/mbanq/iso20022-go/ISO20022/pacs_004_001_10"
@@ -63,7 +65,7 @@ type FedNowIdentifier struct {
 	BusinessMessageID pacs_008_001_08.Max35Text        `json:"businessMessageId"`
 	MessageID         pacs_008_001_08.Max35Text        `json:"messageId"`
 	MessageType       pacs_008_001_08.Max35Text        `json:"messageType,omitempty"`
-	InstructionID     *pacs_008_001_08.Max35Text       `json:"instructionId,omitempty"`
+	InstructionID     *pacs_008_001_08.Max35Text       `json:"instructionId"`
 	EndToEndID        pacs_008_001_08.Max35Text        `json:"endToEndId,omitempty"`
 	TransactionID     *pacs_008_001_08.Max35Text       `json:"transactionId,omitempty"`
 	UETR              pacs_008_001_08.UUIDv4Identifier `json:"uetr,omitempty"`
@@ -82,7 +84,7 @@ type FedNowAmount struct {
 type FedNowDepositoryInstitution struct {
 	SenderABANumber   pacs_008_001_08.Max35Text   `json:"senderABANumber,omitempty"`
 	ReceiverABANumber pacs_008_001_08.Max35Text   `json:"receiverABANumber,omitempty"`
-	Name              *pacs_008_001_08.Max140Text `json:"senderShortName,omitempty"`
+	Name              *pacs_008_001_08.Max140Text `json:"senderShortName"`
 }
 
 type FedNowParty struct {
@@ -96,13 +98,13 @@ type FedNowPersonal struct {
 }
 
 type FedNowPstlAdr struct {
-	StreetName         *pacs_008_001_08.Max70Text   `json:"StreetName,omitempty"`
-	BuildingNumber     *pacs_008_001_08.Max16Text   `json:"BuildingNumber,omitempty"`
-	PostBox            *pacs_008_001_08.Max16Text   `json:"PostBox,omitempty"`
-	TownName           *pacs_008_001_08.Max35Text   `json:"TownName,omitempty"`
-	CountrySubdivision *pacs_008_001_08.Max35Text   `json:"CountrySubDivision,omitempty"`
-	PostalCode         *pacs_008_001_08.Max16Text   `json:"PostalCode,omitempty"`
-	Country            *pacs_008_001_08.CountryCode `json:"Country,omitempty"`
+	StreetName         *pacs_008_001_08.Max70Text   `json:"StreetName"`
+	BuildingNumber     *pacs_008_001_08.Max16Text   `json:"BuildingNumber"`
+	PostBox            *pacs_008_001_08.Max16Text   `json:"PostBox"`
+	TownName           *pacs_008_001_08.Max35Text   `json:"TownName"`
+	CountrySubdivision *pacs_008_001_08.Max35Text   `json:"CountrySubDivision"`
+	PostalCode         *pacs_008_001_08.Max16Text   `json:"PostalCode"`
+	Country            *pacs_008_001_08.CountryCode `json:"Country"`
 }
 
 type PaymentStatus struct {
@@ -117,4 +119,29 @@ type PaymentReturn struct {
 	ReturnReason          *pacs_004_001_10.ExternalReturnReason1Code `json:"returnReason"`
 	AdditionalInformation *pacs_004_001_10.Max105Text                `json:"additionalInformation,omitempty"`
 	ReturnedAmount        FedNowAmount                               `json:"returnedAmount"`
+}
+
+func (address FedNowPstlAdr) ValidateAddress() error {
+	var missingFields []string
+	if address.StreetName == nil || *address.StreetName == "" {
+		missingFields = append(missingFields, "StreetName")
+	}
+	if address.TownName == nil || *address.TownName == "" {
+		missingFields = append(missingFields, "TownName")
+	}
+	if address.CountrySubdivision == nil || *address.CountrySubdivision == "" {
+		missingFields = append(missingFields, "CountrySubdivision")
+	}
+	if address.PostalCode == nil || *address.PostalCode == "" {
+		missingFields = append(missingFields, "PostalCode")
+	}
+	if address.Country == nil || *address.Country == "" {
+		missingFields = append(missingFields, "Country")
+	}
+
+	if len(missingFields) > 0 {
+		return fmt.Errorf("missing required address fields: %s", strings.Join(missingFields, ", "))
+	}
+
+	return nil
 }

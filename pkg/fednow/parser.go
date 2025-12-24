@@ -2,7 +2,6 @@ package fednow
 
 import (
 	"bytes"
-	"encoding/json"
 	"encoding/xml"
 	"errors"
 	"io"
@@ -12,12 +11,14 @@ import (
 	head "github.com/mbanq/iso20022-go/ISO20022/head_001_001_02"
 	pacs002 "github.com/mbanq/iso20022-go/ISO20022/pacs_002_001_10"
 	pacs008 "github.com/mbanq/iso20022-go/ISO20022/pacs_008_001_08"
+	pain013 "github.com/mbanq/iso20022-go/ISO20022/pain_013_001_07"
 	"github.com/mbanq/iso20022-go/pkg/fednow/admi"
 	"github.com/mbanq/iso20022-go/pkg/fednow/pacs"
+	"github.com/mbanq/iso20022-go/pkg/fednow/pain"
 )
 
 // Parse an incoming pacs.008 XML file and return a JSON representation.
-func Parse(xmlData []byte) ([]byte, error) {
+func Parse(xmlData []byte) (FedNowMessage, error) {
 	decoder := xml.NewDecoder(bytes.NewReader(xmlData))
 	var appHdr head.BusinessApplicationHeaderV02
 	foundAppHdr := false
@@ -46,7 +47,7 @@ func Parse(xmlData []byte) ([]byte, error) {
 	}
 
 	// Now, decode the Document based on the message type from AppHdr
-	var fednowMsg interface{}
+	var fednowMsg FedNowMessage
 	var err error
 
 	msgType := string(appHdr.MsgDefIdr)
@@ -70,6 +71,12 @@ func Parse(xmlData []byte) ([]byte, error) {
 			return nil, err
 		}
 		fednowMsg, err = admi.ParseAdmi002Struct(&doc, appHdr)
+	case strings.Contains(msgType, "pain.013.001.07"):
+		var doc pain013.Document
+		if err = decoder.Decode(&doc); err != nil {
+			return nil, err
+		}
+		fednowMsg, err = pain.ParsePain013(appHdr, doc)
 	default:
 		return nil, errors.New("unsupported message type: " + msgType)
 	}
@@ -79,5 +86,5 @@ func Parse(xmlData []byte) ([]byte, error) {
 	}
 
 	// Marshal the struct to JSON
-	return json.MarshalIndent(fednowMsg, "", "  ")
+	return fednowMsg, nil
 }

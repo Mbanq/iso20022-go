@@ -20,6 +20,7 @@ func BuildPacs002Struct(message FedNowMessageACK, msgConfig *config.Config) (*pa
 	creationTime := common.ISODateTime(fedMsg.CreationDateTime)
 	instructionId := pacs_002_001_10.Max35Text(*fedMsg.OriginalIdentifier.InstructionID)
 	endToEndId := pacs_002_001_10.Max35Text(fedMsg.OriginalIdentifier.EndToEndID)
+	transactionId := pacs_002_001_10.Max35Text(*fedMsg.OriginalIdentifier.TransactionID)
 	uetr := pacs_002_001_10.UUIDv4Identifier(fedMsg.OriginalIdentifier.UETR)
 
 	pacsDoc := &pacs_002_001_10.Document{
@@ -32,14 +33,11 @@ func BuildPacs002Struct(message FedNowMessageACK, msgConfig *config.Config) (*pa
 			TxInfAndSts: []pacs_002_001_10.PaymentTransaction110{
 				{
 					OrgnlGrpInf: &pacs_002_001_10.OriginalGroupInformation29{
-						OrgnlMsgId:   pacs_002_001_10.Max35Text(fedMsg.Identifier.MessageID),
-						OrgnlMsgNmId: pacs_002_001_10.Max35Text(fedMsg.Identifier.MessageType),
+						OrgnlMsgId:   pacs_002_001_10.Max35Text(fedMsg.OriginalIdentifier.MessageID),
+						OrgnlMsgNmId: pacs_002_001_10.Max35Text(fedMsg.OriginalIdentifier.MessageType),
 						OrgnlCreDtTm: &creationTime,
 					},
-					OrgnlInstrId:    &instructionId,
-					OrgnlEndToEndId: &endToEndId,
-					OrgnlUETR:       &uetr,
-					TxSts:           fedMsg.PaymentStatus.PaymentStatus,
+					TxSts: fedMsg.PaymentStatus.PaymentStatus,
 					InstgAgt: &pacs_002_001_10.BranchAndFinancialInstitutionIdentification6{
 						FinInstnId: pacs_002_001_10.FinancialInstitutionIdentification18{
 							ClrSysMmbId: &pacs_002_001_10.ClearingSystemMemberIdentification2{
@@ -64,6 +62,20 @@ func BuildPacs002Struct(message FedNowMessageACK, msgConfig *config.Config) (*pa
 			},
 		},
 	}
+
+	if instructionId != "" {
+		pacsDoc.FIToFIPmtStsRpt.TxInfAndSts[0].OrgnlInstrId = &instructionId
+	}
+	if endToEndId != "" {
+		pacsDoc.FIToFIPmtStsRpt.TxInfAndSts[0].OrgnlEndToEndId = &endToEndId
+	}
+	if transactionId != "" {
+		pacsDoc.FIToFIPmtStsRpt.TxInfAndSts[0].OrgnlTxId = &transactionId
+	}
+	if uetr != "" {
+		pacsDoc.FIToFIPmtStsRpt.TxInfAndSts[0].OrgnlUETR = &uetr
+	}
+
 	if *fedMsg.PaymentStatus.PaymentStatus == "ACSC" || *fedMsg.PaymentStatus.PaymentStatus == "ACWP" {
 		if fedMsg.PaymentStatus.AcceptanceDateTime != nil {
 			pacsDoc.FIToFIPmtStsRpt.TxInfAndSts[0].AccptncDtTm = fedMsg.PaymentStatus.AcceptanceDateTime
