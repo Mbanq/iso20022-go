@@ -179,6 +179,14 @@ func ParsePacs008(appHdr head.BusinessApplicationHeaderV02, document pacs_008_00
 	fitoficstmrcdttrf := document.FIToFICstmrCdtTrf
 	cdtrftxinf := fitoficstmrcdttrf.CdtTrfTxInf[0]
 
+	categoryPurpose := resolveCategoryPurpose(cdtrftxinf.PmtTpInf)
+	originatorAddress := convertPostalAddress(cdtrftxinf.Dbtr.PstlAdr)
+	beneficiaryAddress := convertPostalAddress(cdtrftxinf.Cdtr.PstlAdr)
+	originatorIdentifier := extractAccountIdentifier(cdtrftxinf.DbtrAcct)
+	beneficiaryIdentifier := extractAccountIdentifier(cdtrftxinf.CdtrAcct)
+	senderABANumber := extractClrSysMemberID(appHdr.To)
+	receiverABANumber := extractClrSysMemberID(appHdr.Fr)
+
 	fednowMsg := FedNowMessageCCT{
 		FedNowMsg: FedNowDetails{
 			CreationDateTime: common.ISODateTime(fitoficstmrcdttrf.GrpHdr.CreDtTm),
@@ -191,49 +199,91 @@ func ParsePacs008(appHdr head.BusinessApplicationHeaderV02, document pacs_008_00
 				CreationDateTime:  common.ISODateTime(appHdr.CreDt),
 			},
 			PaymentType: FedNowPaymentType{
-				CategoryPurpose: (*pacs_008_001_08.ExternalCategoryPurpose1Code)(cdtrftxinf.PmtTpInf.CtgyPurp.Prtry),
+				CategoryPurpose: categoryPurpose,
 			},
 			Amount: FedNowAmount{
 				Text: json.Number(cdtrftxinf.IntrBkSttlmAmt.Text),
 				Ccy:  cdtrftxinf.IntrBkSttlmAmt.Ccy,
 			},
 			SenderDI: FedNowDepositoryInstitution{
-				ReceiverABANumber: pacs_008_001_08.Max35Text(appHdr.To.FIId.FinInstnId.ClrSysMmbId.MmbId),
+				ReceiverABANumber: senderABANumber,
 			},
 			ReceiverDI: FedNowDepositoryInstitution{
-				SenderABANumber: pacs_008_001_08.Max35Text(appHdr.Fr.FIId.FinInstnId.ClrSysMmbId.MmbId),
+				SenderABANumber: receiverABANumber,
 			},
 			Originator: FedNowParty{
 				Personal: FedNowPersonal{
-					Name: cdtrftxinf.Dbtr.Nm,
-					Address: FedNowPstlAdr{
-						StreetName:         cdtrftxinf.Dbtr.PstlAdr.StrtNm,
-						BuildingNumber:     cdtrftxinf.Dbtr.PstlAdr.BldgNb,
-						TownName:           cdtrftxinf.Dbtr.PstlAdr.TwnNm,
-						CountrySubdivision: cdtrftxinf.Dbtr.PstlAdr.CtrySubDvsn,
-						PostalCode:         cdtrftxinf.Dbtr.PstlAdr.PstCd,
-						Country:            cdtrftxinf.Dbtr.PstlAdr.Ctry,
-					},
-					Identifier: pacs_008_001_08.Max34Text(cdtrftxinf.DbtrAcct.Id.Othr.Id),
+					Name:       cdtrftxinf.Dbtr.Nm,
+					Address:    originatorAddress,
+					Identifier: originatorIdentifier,
 				},
 			},
 			Beneficiary: FedNowParty{
 				Personal: FedNowPersonal{
-					Name: cdtrftxinf.Cdtr.Nm,
-					Address: FedNowPstlAdr{
-						StreetName:         cdtrftxinf.Cdtr.PstlAdr.StrtNm,
-						BuildingNumber:     cdtrftxinf.Cdtr.PstlAdr.BldgNb,
-						PostBox:            cdtrftxinf.Cdtr.PstlAdr.PstBx,
-						TownName:           cdtrftxinf.Cdtr.PstlAdr.TwnNm,
-						CountrySubdivision: cdtrftxinf.Cdtr.PstlAdr.CtrySubDvsn,
-						PostalCode:         cdtrftxinf.Cdtr.PstlAdr.PstCd,
-						Country:            cdtrftxinf.Cdtr.PstlAdr.Ctry,
-					},
-					Identifier: pacs_008_001_08.Max34Text(cdtrftxinf.CdtrAcct.Id.Othr.Id),
+					Name:       cdtrftxinf.Cdtr.Nm,
+					Address:    beneficiaryAddress,
+					Identifier: beneficiaryIdentifier,
 				},
 			},
 		},
 	}
 
 	return &fednowMsg, nil
+}
+
+func resolveCategoryPurpose(pmtType *pacs_008_001_08.PaymentTypeInformation28) *pacs_008_001_08.ExternalCategoryPurpose1Code {
+	if pmtType == nil || pmtType.CtgyPurp == nil {
+		return nil
+	}
+
+	if pmtType.CtgyPurp.Cd != nil {
+		return pmtType.CtgyPurp.Cd
+	}
+
+	if pmtType.CtgyPurp.Prtry != nil {
+		cp := pacs_008_001_08.ExternalCategoryPurpose1Code(*pmtType.CtgyPurp.Prtry)
+		return &cp
+	}
+
+	return nil
+}
+
+func convertPostalAddress(addr *pacs_008_001_08.PostalAddress24) FedNowPstlAdr {
+	if addr == nil {
+		return FedNowPstlAdr{}
+	}
+
+	return FedNowPstlAdr{
+		StreetName:         addr.StrtNm,
+		BuildingNumber:     addr.BldgNb,
+		PostBox:            addr.PstBx,
+		TownName:           addr.TwnNm,
+		CountrySubdivision: addr.CtrySubDvsn,
+		PostalCode:         addr.PstCd,
+		Country:            addr.Ctry,
+	}
+}
+
+func extractAccountIdentifier(acct *pacs_008_001_08.CashAccount38) pacs_008_001_08.Max34Text {
+	if acct == nil {
+		return ""
+	}
+
+	if acct.Id.Othr != nil {
+		return acct.Id.Othr.Id
+	}
+
+	if acct.Id.IBAN != nil {
+		return pacs_008_001_08.Max34Text(*acct.Id.IBAN)
+	}
+
+	return ""
+}
+
+func extractClrSysMemberID(party head.Party44Choice) pacs_008_001_08.Max35Text {
+	if party.FIId == nil || party.FIId.FinInstnId.ClrSysMmbId == nil {
+		return ""
+	}
+
+	return pacs_008_001_08.Max35Text(party.FIId.FinInstnId.ClrSysMmbId.MmbId)
 }
