@@ -35,3 +35,13 @@ ISO20022/sup_FedNowParticipantFile_admi_998_001_02
 # Generated files
 sample_files
 output.xml
+
+.gocache/
+.cache/
+
+
+# IDE/editor settings
+.idea/
+.vscode/
+*.swp
+.DS_Store
