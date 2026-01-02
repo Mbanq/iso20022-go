@@ -17,7 +17,13 @@ func BuildPacs002Struct(message FedNowMessageACK, msgConfig *config.Config) (*pa
 	fedMsg := message.FedNowMsg
 
 	clearingSystemId := pacs_002_001_10.ExternalClearingSystemIdentification1Code(msgConfig.ClearingSystemId)
-	creationTime := common.ISODateTime(fedMsg.CreationDateTime)
+	// OrgnlCreDtTm should reflect the original message's creation time (not the ACK's creation time).
+	// We only set it if the caller provided OriginalIdentifier.CreationDateTime.
+	var orgnlCreationTime *common.ISODateTime
+	if !time.Time(fedMsg.OriginalIdentifier.CreationDateTime).IsZero() {
+		t := common.ISODateTime(fedMsg.OriginalIdentifier.CreationDateTime)
+		orgnlCreationTime = &t
+	}
 	var instructionId pacs_002_001_10.Max35Text
 	if fedMsg.OriginalIdentifier.InstructionID != nil {
 		instructionId = pacs_002_001_10.Max35Text(*fedMsg.OriginalIdentifier.InstructionID)
@@ -45,7 +51,7 @@ func BuildPacs002Struct(message FedNowMessageACK, msgConfig *config.Config) (*pa
 					OrgnlGrpInf: &pacs_002_001_10.OriginalGroupInformation29{
 						OrgnlMsgId:   pacs_002_001_10.Max35Text(fedMsg.OriginalIdentifier.MessageID),
 						OrgnlMsgNmId: pacs_002_001_10.Max35Text(fedMsg.OriginalIdentifier.MessageType),
-						OrgnlCreDtTm: &creationTime,
+						OrgnlCreDtTm: orgnlCreationTime,
 					},
 					TxSts: fedMsg.PaymentStatus.PaymentStatus,
 					InstgAgt: &pacs_002_001_10.BranchAndFinancialInstitutionIdentification6{
