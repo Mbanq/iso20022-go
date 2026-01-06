@@ -25,7 +25,7 @@ func main() {
 	}
 
 	// Call the parser with the file content
-	fednowMsg, err := fednow.GetPublicKeys(xmlFile)
+	fednowMsg, err := fednow.Parse(xmlFile)
 	if err != nil {
 		fmt.Println("Error parsing XML:", err)
 		os.Exit(1)

@@ -184,8 +184,19 @@ func ParsePacs008(appHdr head.BusinessApplicationHeaderV02, document pacs_008_00
 	beneficiaryAddress := convertPostalAddress(cdtrftxinf.Cdtr.PstlAdr)
 	originatorIdentifier := extractAccountIdentifier(cdtrftxinf.DbtrAcct)
 	beneficiaryIdentifier := extractAccountIdentifier(cdtrftxinf.CdtrAcct)
-	senderABANumber := extractClrSysMemberID(appHdr.To)
-	receiverABANumber := extractClrSysMemberID(appHdr.Fr)
+	senderABANumber := extractClrSysMemberIDFromAgent(cdtrftxinf.InstgAgt)
+	if senderABANumber == "" {
+		senderABANumber = extractClrSysMemberID(appHdr.To)
+	}
+	receiverABANumber := extractClrSysMemberIDFromAgent(cdtrftxinf.InstdAgt)
+	if receiverABANumber == "" {
+		receiverABANumber = extractClrSysMemberID(appHdr.Fr)
+	}
+
+	var uetr pacs_008_001_08.UUIDv4Identifier
+	if cdtrftxinf.PmtId.UETR != nil {
+		uetr = pacs_008_001_08.UUIDv4Identifier(*cdtrftxinf.PmtId.UETR)
+	}
 
 	fednowMsg := FedNowMessageCCT{
 		FedNowMsg: FedNowDetails{
@@ -197,6 +208,7 @@ func ParsePacs008(appHdr head.BusinessApplicationHeaderV02, document pacs_008_00
 				EndToEndID:        cdtrftxinf.PmtId.EndToEndId,
 				TransactionID:     cdtrftxinf.PmtId.TxId,
 				CreationDateTime:  common.ISODateTime(appHdr.CreDt),
+				UETR:              uetr,
 			},
 			PaymentType: FedNowPaymentType{
 				CategoryPurpose: categoryPurpose,
@@ -206,10 +218,10 @@ func ParsePacs008(appHdr head.BusinessApplicationHeaderV02, document pacs_008_00
 				Ccy:  cdtrftxinf.IntrBkSttlmAmt.Ccy,
 			},
 			SenderDI: FedNowDepositoryInstitution{
-				ReceiverABANumber: senderABANumber,
+				SenderABANumber: senderABANumber,
 			},
 			ReceiverDI: FedNowDepositoryInstitution{
-				SenderABANumber: receiverABANumber,
+				ReceiverABANumber: receiverABANumber,
 			},
 			Originator: FedNowParty{
 				Personal: FedNowPersonal{
@@ -286,4 +298,14 @@ func extractClrSysMemberID(party head.Party44Choice) pacs_008_001_08.Max35Text {
 	}
 
 	return pacs_008_001_08.Max35Text(party.FIId.FinInstnId.ClrSysMmbId.MmbId)
+}
+
+func extractClrSysMemberIDFromAgent(agent *pacs_008_001_08.BranchAndFinancialInstitutionIdentification6) pacs_008_001_08.Max35Text {
+	if agent == nil {
+		return ""
+	}
+	if agent.FinInstnId.ClrSysMmbId == nil {
+		return ""
+	}
+	return agent.FinInstnId.ClrSysMmbId.MmbId
 }
