@@ -3,6 +3,7 @@ package pacs
 import (
 	"encoding/json"
 	"encoding/xml"
+	"strings"
 	"time"
 
 	head "github.com/mbanq/iso20022-go/ISO20022/head_001_001_02"
@@ -17,10 +18,22 @@ func BuildPacs002Struct(message FedNowMessageACK, msgConfig *config.Config) (*pa
 	fedMsg := message.FedNowMsg
 
 	clearingSystemId := pacs_002_001_10.ExternalClearingSystemIdentification1Code(msgConfig.ClearingSystemId)
-	creationTime := common.ISODateTime(fedMsg.CreationDateTime)
-	instructionId := pacs_002_001_10.Max35Text(*fedMsg.OriginalIdentifier.InstructionID)
+	var creationTimePtr *common.ISODateTime
+	if !time.Time(fedMsg.OriginalIdentifier.CreationDateTime).IsZero() {
+		value := fedMsg.OriginalIdentifier.CreationDateTime
+		creationTimePtr = &value
+	}
+	var instructionId *pacs_002_001_10.Max35Text
+	if fedMsg.OriginalIdentifier.InstructionID != nil {
+		value := pacs_002_001_10.Max35Text(*fedMsg.OriginalIdentifier.InstructionID)
+		instructionId = &value
+	}
 	endToEndId := pacs_002_001_10.Max35Text(fedMsg.OriginalIdentifier.EndToEndID)
-	transactionId := pacs_002_001_10.Max35Text(*fedMsg.OriginalIdentifier.TransactionID)
+	var transactionId *pacs_002_001_10.Max35Text
+	if fedMsg.OriginalIdentifier.TransactionID != nil {
+		value := pacs_002_001_10.Max35Text(*fedMsg.OriginalIdentifier.TransactionID)
+		transactionId = &value
+	}
 	uetr := pacs_002_001_10.UUIDv4Identifier(fedMsg.OriginalIdentifier.UETR)
 
 	pacsDoc := &pacs_002_001_10.Document{
@@ -35,7 +48,7 @@ func BuildPacs002Struct(message FedNowMessageACK, msgConfig *config.Config) (*pa
 					OrgnlGrpInf: &pacs_002_001_10.OriginalGroupInformation29{
 						OrgnlMsgId:   pacs_002_001_10.Max35Text(fedMsg.OriginalIdentifier.MessageID),
 						OrgnlMsgNmId: pacs_002_001_10.Max35Text(fedMsg.OriginalIdentifier.MessageType),
-						OrgnlCreDtTm: &creationTime,
+						OrgnlCreDtTm: creationTimePtr,
 					},
 					TxSts: fedMsg.PaymentStatus.PaymentStatus,
 					InstgAgt: &pacs_002_001_10.BranchAndFinancialInstitutionIdentification6{
@@ -63,14 +76,14 @@ func BuildPacs002Struct(message FedNowMessageACK, msgConfig *config.Config) (*pa
 		},
 	}
 
-	if instructionId != "" {
-		pacsDoc.FIToFIPmtStsRpt.TxInfAndSts[0].OrgnlInstrId = &instructionId
+	if instructionId != nil && *instructionId != "" {
+		pacsDoc.FIToFIPmtStsRpt.TxInfAndSts[0].OrgnlInstrId = instructionId
 	}
 	if endToEndId != "" {
 		pacsDoc.FIToFIPmtStsRpt.TxInfAndSts[0].OrgnlEndToEndId = &endToEndId
 	}
-	if transactionId != "" {
-		pacsDoc.FIToFIPmtStsRpt.TxInfAndSts[0].OrgnlTxId = &transactionId
+	if transactionId != nil && *transactionId != "" {
+		pacsDoc.FIToFIPmtStsRpt.TxInfAndSts[0].OrgnlTxId = transactionId
 	}
 	if uetr != "" {
 		pacsDoc.FIToFIPmtStsRpt.TxInfAndSts[0].OrgnlUETR = &uetr
@@ -87,14 +100,25 @@ func BuildPacs002Struct(message FedNowMessageACK, msgConfig *config.Config) (*pa
 	}
 
 	if *fedMsg.PaymentStatus.PaymentStatus == "RJCT" {
-		stsRsnCode := pacs_002_001_10.ExternalStatusReason1Code(*fedMsg.PaymentStatus.StatusReason)
-		pacsDoc.FIToFIPmtStsRpt.TxInfAndSts[0].StsRsnInf = []pacs_002_001_10.StatusReasonInformation12{
-			{
+		var statusReason *pacs_002_001_10.ExternalStatusReason1Code
+		if fedMsg.PaymentStatus.StatusReason != nil {
+			code := pacs_002_001_10.ExternalStatusReason1Code(*fedMsg.PaymentStatus.StatusReason)
+			statusReason = &code
+		}
+		var additionalInfo []pacs_002_001_10.Max105Text
+		if fedMsg.PaymentStatus.AdditionalInformation != nil && strings.TrimSpace(string(*fedMsg.PaymentStatus.AdditionalInformation)) != "" {
+			additionalInfo = []pacs_002_001_10.Max105Text{*fedMsg.PaymentStatus.AdditionalInformation}
+		}
+		if statusReason != nil || len(additionalInfo) > 0 {
+			entry := pacs_002_001_10.StatusReasonInformation12{
 				Rsn: &pacs_002_001_10.StatusReason6Choice{
-					Cd: &stsRsnCode,
+					Cd: statusReason,
 				},
-				AddtlInf: []pacs_002_001_10.Max105Text{*fedMsg.PaymentStatus.AdditionalInformation},
-			},
+			}
+			if len(additionalInfo) > 0 {
+				entry.AddtlInf = additionalInfo
+			}
+			pacsDoc.FIToFIPmtStsRpt.TxInfAndSts[0].StsRsnInf = []pacs_002_001_10.StatusReasonInformation12{entry}
 		}
 	}
 
