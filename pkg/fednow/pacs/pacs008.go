@@ -153,11 +153,11 @@ func BuildPacs008Struct(message FedNowMessageCCT, msgConfig *config.Config) (*pa
 		},
 	}
 
-	if fedMsg.Identifier.UETR != "" {
-		pacsDoc.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR = &fedMsg.Identifier.UETR
+	if fedMsg.Identifier.UETR != nil {
+		pacsDoc.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR = fedMsg.Identifier.UETR
 	}
 
-	if *fedMsg.Identifier.TransactionID != "" {
+	if fedMsg.Identifier.TransactionID != nil && *fedMsg.Identifier.TransactionID != "" {
 		pacsDoc.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.TxId = fedMsg.Identifier.TransactionID
 	}
 	return pacsDoc, nil
@@ -193,11 +193,6 @@ func ParsePacs008(appHdr head.BusinessApplicationHeaderV02, document pacs_008_00
 		receiverABANumber = extractClrSysMemberID(appHdr.Fr)
 	}
 
-	var uetr pacs_008_001_08.UUIDv4Identifier
-	if cdtrftxinf.PmtId.UETR != nil {
-		uetr = pacs_008_001_08.UUIDv4Identifier(*cdtrftxinf.PmtId.UETR)
-	}
-
 	fednowMsg := FedNowMessageCCT{
 		FedNowMsg: FedNowDetails{
 			CreationDateTime: common.ISODateTime(fitoficstmrcdttrf.GrpHdr.CreDtTm),
@@ -208,7 +203,7 @@ func ParsePacs008(appHdr head.BusinessApplicationHeaderV02, document pacs_008_00
 				EndToEndID:        cdtrftxinf.PmtId.EndToEndId,
 				TransactionID:     cdtrftxinf.PmtId.TxId,
 				CreationDateTime:  common.ISODateTime(appHdr.CreDt),
-				UETR:              uetr,
+				UETR:              cdtrftxinf.PmtId.UETR,
 			},
 			PaymentType: FedNowPaymentType{
 				CategoryPurpose: categoryPurpose,

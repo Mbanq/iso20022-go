@@ -18,6 +18,11 @@ func BuildPacs004Struct(message FedNowMessageRtn, msgConfig *config.Config) (*pa
 	chargebearer := pacs004.ChargeBearerType1Code(msgConfig.ChargeBearer)
 	OrgnlCreDtTm := message.FedNowMsg.OriginalIdentifier.CreationDateTime
 	localInstrument := pacs004.Max35Text(*msgConfig.LocalInstrument.Prtry)
+	var orgnlUetr *pacs004.UUIDv4Identifier
+	if message.FedNowMsg.OriginalIdentifier.UETR != nil {
+		tmp := pacs004.UUIDv4Identifier(*message.FedNowMsg.OriginalIdentifier.UETR)
+		orgnlUetr = &tmp
+	}
 
 	pacsDoc := &pacs004.Document{
 		PmtRtr: pacs004.PaymentReturnV10{
@@ -41,7 +46,7 @@ func BuildPacs004Struct(message FedNowMessageRtn, msgConfig *config.Config) (*pa
 					},
 					OrgnlInstrId:    (*pacs004.Max35Text)(message.FedNowMsg.OriginalIdentifier.InstructionID),
 					OrgnlEndToEndId: (*pacs004.Max35Text)(&message.FedNowMsg.OriginalIdentifier.EndToEndID),
-					OrgnlUETR:       (*pacs004.UUIDv4Identifier)(&message.FedNowMsg.OriginalIdentifier.UETR),
+					OrgnlUETR:       orgnlUetr,
 					OrgnlIntrBkSttlmAmt: &pacs004.ActiveOrHistoricCurrencyAndAmount{
 						Ccy:  pacs004.ActiveOrHistoricCurrencyCode(message.FedNowMsg.Amount.Ccy),
 						Text: string(message.FedNowMsg.Amount.Text),

@@ -62,14 +62,14 @@ type FedNowRtn struct {
 }
 
 type FedNowIdentifier struct {
-	BusinessMessageID pacs_008_001_08.Max35Text        `json:"businessMessageId"`
-	MessageID         pacs_008_001_08.Max35Text        `json:"messageId"`
-	MessageType       pacs_008_001_08.Max35Text        `json:"messageType,omitempty"`
-	InstructionID     *pacs_008_001_08.Max35Text       `json:"instructionId"`
-	EndToEndID        pacs_008_001_08.Max35Text        `json:"endToEndId,omitempty"`
-	TransactionID     *pacs_008_001_08.Max35Text       `json:"transactionId,omitempty"`
-	UETR              pacs_008_001_08.UUIDv4Identifier `json:"uetr,omitempty"`
-	CreationDateTime  common.ISODateTime               `json:"creationDateTime,omitempty"`
+	BusinessMessageID pacs_008_001_08.Max35Text         `json:"businessMessageId"`
+	MessageID         pacs_008_001_08.Max35Text         `json:"messageId"`
+	MessageType       pacs_008_001_08.Max35Text         `json:"messageType,omitempty"`
+	InstructionID     *pacs_008_001_08.Max35Text        `json:"instructionId"`
+	EndToEndID        pacs_008_001_08.Max35Text         `json:"endToEndId,omitempty"`
+	TransactionID     *pacs_008_001_08.Max35Text        `json:"transactionId,omitempty"`
+	UETR              *pacs_008_001_08.UUIDv4Identifier `json:"uetr,omitempty"`
+	CreationDateTime  common.ISODateTime                `json:"creationDateTime,omitempty"`
 }
 
 type FedNowPaymentType struct {
