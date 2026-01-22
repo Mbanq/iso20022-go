@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	camt056 "github.com/mbanq/iso20022-go/ISO20022/camt_056_001_08"
 	head "github.com/mbanq/iso20022-go/ISO20022/head_001_001_02"
 	pacs002 "github.com/mbanq/iso20022-go/ISO20022/pacs_002_001_10"
 	pacs004 "github.com/mbanq/iso20022-go/ISO20022/pacs_004_001_10"
@@ -16,6 +17,7 @@ import (
 	pain013 "github.com/mbanq/iso20022-go/ISO20022/pain_013_001_07"
 	"github.com/mbanq/iso20022-go/pkg/common"
 	bah "github.com/mbanq/iso20022-go/pkg/fednow/bah"
+	"github.com/mbanq/iso20022-go/pkg/fednow/camt"
 	config "github.com/mbanq/iso20022-go/pkg/fednow/config"
 	"github.com/mbanq/iso20022-go/pkg/fednow/pacs"
 	"github.com/mbanq/iso20022-go/pkg/fednow/pain"
@@ -94,6 +96,7 @@ var messageHandlers = map[string]messageHandler{
 	"pacs.002.001.10": handlePacs002,
 	"pacs.004.001.10": handlePacs004,
 	"pain.013.001.07": handlePain013,
+	"camt.056.001.08": handleCamt056,
 }
 
 func handlePacs002(cfg *config.Config, message FedNowMessage) (string, string, error) {
@@ -123,6 +126,35 @@ func handlePacs002(cfg *config.Config, message FedNowMessage) (string, string, e
 	pacs002 := strings.Replace(string(documentPayload), "<Document>", "<Document xmlns=\"urn:iso:std:iso:20022:tech:xsd:pacs.002.001.10\">", 1)
 
 	return bah, pacs002, nil
+}
+
+func handleCamt056(cfg *config.Config, message FedNowMessage) (string, string, error) {
+	msg, ok := message.(camt.FedNowMessageCxlReq)
+	if !ok {
+		return "", "", fmt.Errorf("invalid message type for camt.056.001.08")
+	}
+
+	appHdr, document, err := GenerateCamt056("camt.056.001.08", cfg, msg)
+	if err != nil {
+		return "", "", err
+	}
+
+	appHdrPayload, err := xml.MarshalIndent(appHdr, "            ", "    ")
+	if err != nil {
+		return "", "", fmt.Errorf("error marshalling AppHdr: %v", err)
+	}
+
+	bah := strings.Replace(string(appHdrPayload), "<BusinessApplicationHeaderV02>", "<AppHdr xmlns=\"urn:iso:std:iso:20022:tech:xsd:head.001.001.02\">", 1)
+	bah = strings.Replace(bah, "</BusinessApplicationHeaderV02>", "</AppHdr>", 1)
+
+	documentPayload, err := xml.MarshalIndent(document, "            ", "    ")
+	if err != nil {
+		return "", "", fmt.Errorf("error marshalling document: %v", err)
+	}
+
+	camt056Doc := strings.Replace(string(documentPayload), "<Document>", "<Document xmlns=\"urn:iso:std:iso:20022:tech:xsd:camt.056.001.08\">", 1)
+
+	return bah, camt056Doc, nil
 }
 
 func handlePacs004(cfg *config.Config, message FedNowMessage) (string, string, error) {
@@ -214,6 +246,25 @@ func GeneratePacs002(messageType string, msgConfig *config.Config, message pacs.
 	}
 
 	document, err := pacs.BuildPacs002Struct(message, msgConfig)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return appHdr, document, nil
+}
+
+func GenerateCamt056(messageType string, msgConfig *config.Config, message camt.FedNowMessageCxlReq) (*head.BusinessApplicationHeaderV02, *camt056.Document, error) {
+
+	now := time.Now().In(common.EstLocation)
+	// Override creation date and time with current EST time
+	message.FedNowMsg.CreationDateTime = common.ISODateTime(now)
+
+	appHdr, err := bah.BuildBah(string(message.FedNowMsg.Identifier.MessageID), msgConfig, messageType)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	document, err := camt.BuildCamt056Struct(message, msgConfig)
 	if err != nil {
 		return nil, nil, err
 	}
