@@ -3,7 +3,6 @@ package pacs
 import (
 	"encoding/json"
 	"encoding/xml"
-	"strings"
 	"time"
 
 	head "github.com/mbanq/iso20022-go/ISO20022/head_001_001_02"
