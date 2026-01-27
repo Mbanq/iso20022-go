@@ -151,6 +151,18 @@ func ParseCamt056(appHdr head.BusinessApplicationHeaderV02, document camt_056_00
 
 	if len(req.Undrlyg) > 0 && len(req.Undrlyg[0].TxInf) > 0 {
 		tx := req.Undrlyg[0].TxInf[0]
+		// If group info wasn't provided at Undrlyg level, fall back to TxInf.OrgnlGrpInf.
+		if tx.OrgnlGrpInf != nil && (origMsgId == "" || origMsgNmId == "" || time.Time(origCreDtTm).IsZero()) {
+			if origMsgId == "" {
+				origMsgId = tx.OrgnlGrpInf.OrgnlMsgId
+			}
+			if origMsgNmId == "" {
+				origMsgNmId = tx.OrgnlGrpInf.OrgnlMsgNmId
+			}
+			if tx.OrgnlGrpInf.OrgnlCreDtTm != nil && time.Time(origCreDtTm).IsZero() {
+				origCreDtTm = common.ISODateTime(*tx.OrgnlGrpInf.OrgnlCreDtTm)
+			}
+		}
 		origInstrId = tx.OrgnlInstrId
 		if tx.OrgnlEndToEndId != nil {
 			origEndToEndId = *tx.OrgnlEndToEndId
