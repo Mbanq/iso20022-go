@@ -179,8 +179,14 @@ func ParseCamt056(appHdr head.BusinessApplicationHeaderV02, document camt_056_00
 		}
 	}
 
-	senderABANumber := extractClrSysMemberID(appHdr.Fr)
-	receiverABANumber := extractClrSysMemberID(appHdr.To)
+	senderABANumber := extractClrSysMemberIDFromParty40ChoiceCamt056(req.Assgnmt.Assgnr)
+	if senderABANumber == "" {
+		senderABANumber = extractClrSysMemberID(appHdr.To)
+	}
+	receiverABANumber := extractClrSysMemberIDFromParty40ChoiceCamt056(req.Assgnmt.Assgne)
+	if receiverABANumber == "" {
+		receiverABANumber = extractClrSysMemberID(appHdr.Fr)
+	}
 
 	msg := FedNowMessageCxlReq{
 		FedNowMsg: FedNowCxlReq{
@@ -219,4 +225,11 @@ func extractClrSysMemberID(party head.Party44Choice) camt_056_001_08.Max35Text {
 		return ""
 	}
 	return camt_056_001_08.Max35Text(party.FIId.FinInstnId.ClrSysMmbId.MmbId)
+}
+
+func extractClrSysMemberIDFromParty40ChoiceCamt056(party camt_056_001_08.Party40Choice) camt_056_001_08.Max35Text {
+	if party.Agt == nil || party.Agt.FinInstnId.ClrSysMmbId == nil {
+		return ""
+	}
+	return camt_056_001_08.Max35Text(party.Agt.FinInstnId.ClrSysMmbId.MmbId)
 }

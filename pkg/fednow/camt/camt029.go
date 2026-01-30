@@ -211,8 +211,14 @@ func ParseCamt029(appHdr head.BusinessApplicationHeaderV02, document camt_029_00
 		}
 	}
 
-	senderABANumber := extractClrSysMemberIDCamt029(appHdr.Fr)
-	receiverABANumber := extractClrSysMemberIDCamt029(appHdr.To)
+	senderABANumber := extractClrSysMemberIDFromParty40ChoiceCamt029(response.Assgnmt.Assgnr)
+	if senderABANumber == "" {
+		senderABANumber = extractClrSysMemberIDCamt029(appHdr.To)
+	}
+	receiverABANumber := extractClrSysMemberIDFromParty40ChoiceCamt029(response.Assgnmt.Assgne)
+	if receiverABANumber == "" {
+		receiverABANumber = extractClrSysMemberIDCamt029(appHdr.Fr)
+	}
 
 	msg := FedNowMessageCxlRsp{
 		FedNowMsg: FedNowCxlRsp{
@@ -246,6 +252,13 @@ func extractClrSysMemberIDCamt029(party head.Party44Choice) camt_029_001_09.Max3
 }
 
 func extractCaseCreatorMemberID(party camt_029_001_09.Party40Choice) camt_029_001_09.Max35Text {
+	if party.Agt == nil || party.Agt.FinInstnId.ClrSysMmbId == nil {
+		return ""
+	}
+	return camt_029_001_09.Max35Text(party.Agt.FinInstnId.ClrSysMmbId.MmbId)
+}
+
+func extractClrSysMemberIDFromParty40ChoiceCamt029(party camt_029_001_09.Party40Choice) camt_029_001_09.Max35Text {
 	if party.Agt == nil || party.Agt.FinInstnId.ClrSysMmbId == nil {
 		return ""
 	}
