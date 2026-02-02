@@ -3,7 +3,6 @@ package pacs
 import (
 	"encoding/json"
 	"encoding/xml"
-	"strings"
 	"time"
 
 	head "github.com/mbanq/iso20022-go/ISO20022/head_001_001_02"
@@ -18,6 +17,9 @@ func BuildPacs002Struct(message FedNowMessageACK, msgConfig *config.Config) (*pa
 	fedMsg := message.FedNowMsg
 
 	clearingSystemId := pacs_002_001_10.ExternalClearingSystemIdentification1Code(msgConfig.ClearingSystemId)
+
+	// OrgnlCreDtTm should reflect the original message's creation time (not the ACK's creation time).
+	// We only set it if OriginalIdentifier.CreationDateTime is non-zero.
 	var creationTimePtr *common.ISODateTime
 	if !time.Time(fedMsg.OriginalIdentifier.CreationDateTime).IsZero() {
 		value := fedMsg.OriginalIdentifier.CreationDateTime
@@ -34,7 +36,13 @@ func BuildPacs002Struct(message FedNowMessageACK, msgConfig *config.Config) (*pa
 		value := pacs_002_001_10.Max35Text(*fedMsg.OriginalIdentifier.TransactionID)
 		transactionId = &value
 	}
-	uetr := pacs_002_001_10.UUIDv4Identifier(fedMsg.OriginalIdentifier.UETR)
+
+	// UETR is optional.
+	var uetr *pacs_002_001_10.UUIDv4Identifier
+	if fedMsg.OriginalIdentifier.UETR != nil {
+		tmp := pacs_002_001_10.UUIDv4Identifier(*fedMsg.OriginalIdentifier.UETR)
+		uetr = &tmp
+	}
 
 	pacsDoc := &pacs_002_001_10.Document{
 		XMLName: xml.Name{Space: "urn:iso:std:iso:20022:tech:xsd:pacs.002.001.10", Local: "Document"},
@@ -85,8 +93,8 @@ func BuildPacs002Struct(message FedNowMessageACK, msgConfig *config.Config) (*pa
 	if transactionId != nil && *transactionId != "" {
 		pacsDoc.FIToFIPmtStsRpt.TxInfAndSts[0].OrgnlTxId = transactionId
 	}
-	if uetr != "" {
-		pacsDoc.FIToFIPmtStsRpt.TxInfAndSts[0].OrgnlUETR = &uetr
+	if uetr != nil {
+		pacsDoc.FIToFIPmtStsRpt.TxInfAndSts[0].OrgnlUETR = uetr
 	}
 
 	if *fedMsg.PaymentStatus.PaymentStatus == "ACSC" || *fedMsg.PaymentStatus.PaymentStatus == "ACWP" {
@@ -162,6 +170,18 @@ func ParsePacs002(appHdr head.BusinessApplicationHeaderV02, document pacs_002_00
 		orgnlEndToEndId = pacs_008_001_08.Max35Text(*txinfandsts.OrgnlEndToEndId)
 	}
 
+	var orgnlTxId *pacs_008_001_08.Max35Text
+	if txinfandsts.OrgnlTxId != nil {
+		val := pacs_008_001_08.Max35Text(*txinfandsts.OrgnlTxId)
+		orgnlTxId = &val
+	}
+
+	var orgnlUETR *pacs_008_001_08.UUIDv4Identifier
+	if txinfandsts.OrgnlUETR != nil {
+		val := pacs_008_001_08.UUIDv4Identifier(*txinfandsts.OrgnlUETR)
+		orgnlUETR = &val
+	}
+
 	senderABANumber := extractClrSysMemberID(appHdr.Fr)
 	receiverABANumber := extractClrSysMemberID(appHdr.To)
 
@@ -178,6 +198,8 @@ func ParsePacs002(appHdr head.BusinessApplicationHeaderV02, document pacs_002_00
 				MessageType:      orgnlMsgNmId,
 				InstructionID:    orgnlInstrId,
 				EndToEndID:       orgnlEndToEndId,
+				TransactionID:    orgnlTxId,
+				UETR:             orgnlUETR,
 				CreationDateTime: orgnlCreDtTm,
 			},
 			PaymentStatus: PaymentStatus{

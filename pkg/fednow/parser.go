@@ -8,11 +8,15 @@ import (
 	"strings"
 
 	admi002 "github.com/mbanq/iso20022-go/ISO20022/admi_002_001_01"
+	admi007 "github.com/mbanq/iso20022-go/ISO20022/admi_007_001_01"
+	camt029 "github.com/mbanq/iso20022-go/ISO20022/camt_029_001_09"
+	camt056 "github.com/mbanq/iso20022-go/ISO20022/camt_056_001_08"
 	head "github.com/mbanq/iso20022-go/ISO20022/head_001_001_02"
 	pacs002 "github.com/mbanq/iso20022-go/ISO20022/pacs_002_001_10"
 	pacs008 "github.com/mbanq/iso20022-go/ISO20022/pacs_008_001_08"
 	pain013 "github.com/mbanq/iso20022-go/ISO20022/pain_013_001_07"
 	"github.com/mbanq/iso20022-go/pkg/fednow/admi"
+	"github.com/mbanq/iso20022-go/pkg/fednow/camt"
 	"github.com/mbanq/iso20022-go/pkg/fednow/pacs"
 	"github.com/mbanq/iso20022-go/pkg/fednow/pain"
 )
@@ -71,12 +75,30 @@ func Parse(xmlData []byte) (FedNowMessage, error) {
 			return nil, err
 		}
 		fednowMsg, err = admi.ParseAdmi002Struct(&doc, appHdr)
+	case strings.Contains(msgType, "admi.007.001.01"):
+		var doc admi007.Document
+		if err = decoder.Decode(&doc); err != nil {
+			return nil, err
+		}
+		fednowMsg, err = admi.ParseAdmi007Struct(&doc, appHdr)
 	case strings.Contains(msgType, "pain.013.001.07"):
 		var doc pain013.Document
 		if err = decoder.Decode(&doc); err != nil {
 			return nil, err
 		}
 		fednowMsg, err = pain.ParsePain013(appHdr, doc)
+	case strings.Contains(msgType, "camt.056.001.08"):
+		var doc camt056.Document
+		if err = decoder.Decode(&doc); err != nil {
+			return nil, err
+		}
+		fednowMsg, err = camt.ParseCamt056(appHdr, doc)
+	case strings.Contains(msgType, "camt.029.001.09"):
+		var doc camt029.Document
+		if err = decoder.Decode(&doc); err != nil {
+			return nil, err
+		}
+		fednowMsg, err = camt.ParseCamt029(appHdr, doc)
 	default:
 		return nil, errors.New("unsupported message type: " + msgType)
 	}

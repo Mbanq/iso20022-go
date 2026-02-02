@@ -153,11 +153,11 @@ func BuildPacs008Struct(message FedNowMessageCCT, msgConfig *config.Config) (*pa
 		},
 	}
 
-	if fedMsg.Identifier.UETR != "" {
-		pacsDoc.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR = &fedMsg.Identifier.UETR
+	if fedMsg.Identifier.UETR != nil {
+		pacsDoc.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.UETR = fedMsg.Identifier.UETR
 	}
 
-	if *fedMsg.Identifier.TransactionID != "" {
+	if fedMsg.Identifier.TransactionID != nil && *fedMsg.Identifier.TransactionID != "" {
 		pacsDoc.FIToFICstmrCdtTrf.CdtTrfTxInf[0].PmtId.TxId = fedMsg.Identifier.TransactionID
 	}
 	return pacsDoc, nil
@@ -208,7 +208,7 @@ func ParsePacs008(appHdr head.BusinessApplicationHeaderV02, document pacs_008_00
 				EndToEndID:        cdtrftxinf.PmtId.EndToEndId,
 				TransactionID:     cdtrftxinf.PmtId.TxId,
 				CreationDateTime:  common.ISODateTime(appHdr.CreDt),
-				UETR:              uetr,
+				UETR:              &uetr,
 			},
 			PaymentType: FedNowPaymentType{
 				CategoryPurpose: categoryPurpose,
