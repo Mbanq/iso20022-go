@@ -45,3 +45,6 @@ output.xml
 .vscode/
 *.swp
 .DS_Store
+*.iml
+*.ipr
+*.iws
