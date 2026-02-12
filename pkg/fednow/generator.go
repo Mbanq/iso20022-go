@@ -40,18 +40,34 @@ var (
 
 // Generate creates a FedNow XML envelope for a given message ID using the specified XSD file.
 func Generate(xsdPath, messageType string, config *config.Config, message FedNowMessage) ([]byte, error) {
+	// Determine preferred wrapper from message context (if the message
+	// implements WrapperPreferrer). This is needed when a single ISO
+	// message type maps to multiple FedNow wrapper elements.
+	var preferredWrapper string
+	if wp, ok := message.(WrapperPreferrer); ok {
+		preferredWrapper = wp.PreferredWrapper()
+	}
+
+	// Use a composite cache key so that different wrapper preferences for the
+	// same message type (e.g. camt.029 return vs information) are cached
+	// independently and don't overwrite each other.
+	cacheKey := messageType
+	if preferredWrapper != "" {
+		cacheKey = messageType + "|" + preferredWrapper
+	}
+
 	// First, try to read from the cache with a read lock.
 	cacheMux.RLock()
-	entry, found := xsdCache[messageType]
+	entry, found := xsdCache[cacheKey]
 	cacheMux.RUnlock()
 
 	if !found {
 
 		cacheMux.Lock()
 		defer cacheMux.Unlock()
-		entry, found = xsdCache[messageType]
+		entry, found = xsdCache[cacheKey]
 		if !found {
-			rootElement, messageElement, wrapperElement, rootNs, err := findWrapperForMessageID(xsdPath, messageType)
+			rootElement, messageElement, wrapperElement, rootNs, err := findWrapperForMessageID(xsdPath, messageType, preferredWrapper)
 			if err != nil {
 				return nil, fmt.Errorf("error finding wrapper element: %v", err)
 			}
@@ -62,7 +78,7 @@ func Generate(xsdPath, messageType string, config *config.Config, message FedNow
 				wrapperElement: wrapperElement,
 				rootNs:         rootNs,
 			}
-			xsdCache[messageType] = entry
+			xsdCache[cacheKey] = entry
 		}
 	}
 
@@ -441,7 +457,9 @@ func GeneratePain013(messageType string, msgConfig *config.Config, message pain.
 }
 
 // findWrapperForMessageID dynamically parses the XSD to find the correct wrapper element.
-func findWrapperForMessageID(xsdPath string, messageId string) (string, string, string, string, error) {
+// When preferredWrapper is non-empty and multiple wrappers reference the same message
+// namespace, the preferred one is selected. Otherwise the first match is used.
+func findWrapperForMessageID(xsdPath string, messageId string, preferredWrapper string) (string, string, string, string, error) {
 	xsdFile, err := os.Open(xsdPath)
 	if err != nil {
 		return "", "", "", "", fmt.Errorf("error opening XSD file: %v", err)
@@ -506,11 +524,14 @@ func findWrapperForMessageID(xsdPath string, messageId string) (string, string, 
 		}
 	}
 
-	// Second pass: find the wrapper element that references the correct document namespace
+	// Second pass: collect all wrapper elements that reference the correct document namespace.
+	// When multiple wrappers match (e.g. camt.029 used by both return-request and
+	// information-request flows), preferredWrapper is used to disambiguate.
 	xsdFile.Seek(0, 0)
 	decoder = xml.NewDecoder(xsdFile)
 	var currentWrapper string
 	var inWrapper bool
+	var candidates []string
 
 	for {
 		token, err := decoder.Token()
@@ -533,8 +554,7 @@ func findWrapperForMessageID(xsdPath string, messageId string) (string, string, 
 					refPrefix := parts[0]
 					if ns, ok := nsMap[refPrefix]; ok {
 						if strings.Contains(ns, messageId) {
-							wrapperElementName = currentWrapper
-							goto end_pass_2 // Found it, exit loop
+							candidates = append(candidates, currentWrapper)
 						}
 					}
 				}
@@ -546,7 +566,21 @@ func findWrapperForMessageID(xsdPath string, messageId string) (string, string, 
 			}
 		}
 	}
-end_pass_2:
+
+	// Pick the preferred wrapper if it appears among candidates; otherwise use first match.
+	if len(candidates) > 0 {
+		if preferredWrapper != "" {
+			for _, c := range candidates {
+				if c == preferredWrapper {
+					wrapperElementName = c
+					break
+				}
+			}
+		}
+		if wrapperElementName == "" {
+			wrapperElementName = candidates[0]
+		}
+	}
 
 	if rootElement == "" || messageElement == "" || wrapperElementName == "" {
 		return "", "", "", "", fmt.Errorf("could not determine all required elements (root: '%s', message: '%s', wrapper: '%s')", rootElement, messageElement, wrapperElementName)
