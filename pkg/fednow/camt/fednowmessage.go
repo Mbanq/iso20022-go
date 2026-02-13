@@ -43,6 +43,28 @@ type FedNowDepositoryInstitution struct {
 	Name              *camt_056_001_08.Max140Text `json:"senderShortName,omitempty"`
 }
 
+// FlowType constants identify the FedNow business flow context.
+// A single ISO message type (e.g. camt.029.001.09) can appear in
+// multiple FedNow flows, each requiring a different XML wrapper element.
+// The caller sets FlowType on the message so the generator picks the
+// correct wrapper. When camt.026/camt.028 support is added later, the
+// information-request flow can use FlowTypeInformationRequest.
+const (
+	// FlowTypeReturnRequest indicates a response to a return/cancellation
+	// request (camt.056). Wrapper: FedNowReturnRequestResponse.
+	FlowTypeReturnRequest = "return_request"
+
+	// FlowTypeInformationRequest indicates a response to an information
+	// request (camt.026/camt.028). Wrapper: FedNowInformationRequestResponse.
+	FlowTypeInformationRequest = "information_request"
+)
+
+// wrapperByFlowType maps a FlowType to the FedNow envelope wrapper element name.
+var wrapperByFlowType = map[string]string{
+	FlowTypeReturnRequest:      "FedNowReturnRequestResponse",
+	FlowTypeInformationRequest: "FedNowInformationRequestResponse",
+}
+
 // FedNowMessageCxlRsp represents a FedNow camt.029 cancellation response message.
 // It implements fednow.FedNowMessage via IsFedNowMessage().
 type FedNowMessageCxlRsp struct {
@@ -51,8 +73,23 @@ type FedNowMessageCxlRsp struct {
 
 func (f FedNowMessageCxlRsp) IsFedNowMessage() {}
 
+// PreferredWrapper returns the FedNow envelope wrapper element name based on
+// FlowType. Defaults to FedNowReturnRequestResponse for backward compatibility
+// when FlowType is not set.
+func (f FedNowMessageCxlRsp) PreferredWrapper() string {
+	if wrapper, ok := wrapperByFlowType[f.FedNowMsg.FlowType]; ok {
+		return wrapper
+	}
+	// Default: return-request flow (the only currently supported flow).
+	return "FedNowReturnRequestResponse"
+}
+
 // FedNowCxlRsp is the custom JSON payload used by this library for camt.029.
 type FedNowCxlRsp struct {
+	// FlowType identifies the business flow context (e.g. FlowTypeReturnRequest
+	// or FlowTypeInformationRequest). This determines the FedNow envelope wrapper
+	// element used during XML generation.
+	FlowType            string                       `json:"flowType,omitempty"`
 	CreationDateTime    common.ISODateTime           `json:"creationDateTime"`
 	Identifier          FedNowIdentifierCxlRsp       `json:"identifier"`
 	ResolvedCase        FedNowCase                   `json:"resolvedCase"`
