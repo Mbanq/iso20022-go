@@ -57,12 +57,25 @@ const (
 	// FlowTypeInformationRequest indicates a response to an information
 	// request (camt.026/camt.028). Wrapper: FedNowInformationRequestResponse.
 	FlowTypeInformationRequest = "information_request"
+
+	// FlowTypeRFPCancellation indicates an RFP cancellation request response.
+	// BAH market practice ID: frb.fednow.rcr.01.
+	FlowTypeRFPCancellation = "rfp_cancellation"
 )
 
 // wrapperByFlowType maps a FlowType to the FedNow envelope wrapper element name.
 var wrapperByFlowType = map[string]string{
 	FlowTypeReturnRequest:      "FedNowReturnRequestResponse",
 	FlowTypeInformationRequest: "FedNowInformationRequestResponse",
+}
+
+// marketPracticeIDByFlowType maps camt.029 FlowType to BAH MktPrctc Id per FedNow docs:
+// return request response -> frb.fednow.rrr.01, information request response -> frb.fednow.irr.01,
+// RFP cancellation request response -> frb.fednow.rcr.01.
+var marketPracticeIDByFlowType = map[string]string{
+	FlowTypeReturnRequest:      "frb.fednow.rrr.01",
+	FlowTypeInformationRequest: "frb.fednow.irr.01",
+	FlowTypeRFPCancellation:    "frb.fednow.rcr.01",
 }
 
 // FedNowMessageCxlRsp represents a FedNow camt.029 cancellation response message.
@@ -82,6 +95,15 @@ func (f FedNowMessageCxlRsp) PreferredWrapper() string {
 	}
 	// Default: return-request flow (the only currently supported flow).
 	return "FedNowReturnRequestResponse"
+}
+
+// MarketPracticeID returns the BAH MktPrctc Id for this camt.029 message based on
+// FlowType. Defaults to frb.fednow.rrr.01 (return request response) when FlowType is not set.
+func (f FedNowMessageCxlRsp) MarketPracticeID() string {
+	if id, ok := marketPracticeIDByFlowType[f.FedNowMsg.FlowType]; ok {
+		return id
+	}
+	return "frb.fednow.rrr.01"
 }
 
 // FedNowCxlRsp is the custom JSON payload used by this library for camt.029.
