@@ -300,7 +300,7 @@ func GeneratePacs004(messageType string, msgConfig *config.Config, message pacs.
 	// Override creation date and time with current EST time
 	message.FedNowMsg.CreationDateTime = common.ISODateTime(now)
 
-	appHdr, err := bah.BuildBah(string(message.FedNowMsg.Identifier.MessageID), msgConfig, messageType)
+	appHdr, err := bah.BuildBah(string(message.FedNowMsg.Identifier.MessageID), msgConfig, messageType, "")
 	if err != nil {
 		return nil, nil, err
 	}
@@ -319,7 +319,7 @@ func GeneratePacs002(messageType string, msgConfig *config.Config, message pacs.
 	// Override creation date and time with current EST time
 	message.FedNowMsg.CreationDateTime = common.ISODateTime(now)
 
-	appHdr, err := bah.BuildBah(string(message.FedNowMsg.Identifier.MessageID), msgConfig, messageType)
+	appHdr, err := bah.BuildBah(string(message.FedNowMsg.Identifier.MessageID), msgConfig, messageType, "")
 	if err != nil {
 		return nil, nil, err
 	}
@@ -338,7 +338,7 @@ func GenerateCamt056(messageType string, msgConfig *config.Config, message camt.
 	// Override creation date and time with current EST time
 	message.FedNowMsg.CreationDateTime = common.ISODateTime(now)
 
-	appHdr, err := bah.BuildBah(string(message.FedNowMsg.Identifier.MessageID), msgConfig, messageType)
+	appHdr, err := bah.BuildBah(string(message.FedNowMsg.Identifier.MessageID), msgConfig, messageType, "")
 	if err != nil {
 		return nil, nil, err
 	}
@@ -357,7 +357,7 @@ func GenerateCamt029(messageType string, msgConfig *config.Config, message camt.
 	// Override creation date and time with current EST time
 	message.FedNowMsg.CreationDateTime = common.ISODateTime(now)
 
-	appHdr, err := bah.BuildBah(string(message.FedNowMsg.Identifier.MessageID), msgConfig, messageType)
+	appHdr, err := bah.BuildBah(string(message.FedNowMsg.Identifier.MessageID), msgConfig, messageType, message.MarketPracticeID())
 	if err != nil {
 		return nil, nil, err
 	}
@@ -376,7 +376,7 @@ func GenerateAdmi007(messageType string, msgConfig *config.Config, message admi.
 	// Override creation date and time with current EST time
 	message.FedNowMsg.CreationDateTime = common.ISODateTime(now)
 
-	appHdr, err := bah.BuildBah(string(message.FedNowMsg.Identifier.MessageID), msgConfig, messageType)
+	appHdr, err := bah.BuildBah(string(message.FedNowMsg.Identifier.MessageID), msgConfig, messageType, "")
 	if err != nil {
 		return nil, nil, err
 	}
@@ -424,7 +424,7 @@ func GeneratePacs008(messageType string, msgConfig *config.Config, message pacs.
 	// Override creation date and time with current EST time
 	message.FedNowMsg.CreationDateTime = common.ISODateTime(now)
 
-	appHdr, err := bah.BuildBah(string(message.FedNowMsg.Identifier.MessageID), msgConfig, messageType)
+	appHdr, err := bah.BuildBah(string(message.FedNowMsg.Identifier.MessageID), msgConfig, messageType, "")
 	if err != nil {
 		return nil, nil, err
 	}
@@ -443,7 +443,7 @@ func GeneratePain013(messageType string, msgConfig *config.Config, message pain.
 	// Override creation date and time with current EST time
 	message.FedNowMsg.CreationDateTime = common.ISODateTime(now)
 
-	appHdr, err := bah.BuildBah(string(message.FedNowMsg.Identifier.MessageID), msgConfig, messageType)
+	appHdr, err := bah.BuildBah(string(message.FedNowMsg.Identifier.MessageID), msgConfig, messageType, "")
 	if err != nil {
 		return nil, nil, err
 	}
