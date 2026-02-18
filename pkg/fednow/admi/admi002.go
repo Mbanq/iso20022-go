@@ -6,8 +6,8 @@ import (
 	"github.com/mbanq/iso20022-go/pkg/common"
 )
 
-func ParseAdmi002Struct(admiDoc *admi.Document, appHdr head.BusinessApplicationHeaderV02) (FedNowMessageADM, error) {
-	fedMsg := FedNowMessageADM{
+func ParseAdmi002Struct(admiDoc *admi.Document, appHdr head.BusinessApplicationHeaderV02) (*FedNowMessageADM, error) {
+	fedMsg := &FedNowMessageADM{
 		FedNowMsg: FedNowADM{
 			CreationDateTime: common.ISODateTime(appHdr.CreDt),
 			Identifier: FedNowIdentifier{
