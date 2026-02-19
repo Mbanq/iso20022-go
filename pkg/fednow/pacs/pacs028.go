@@ -6,7 +6,7 @@ import (
 
 	head "github.com/mbanq/iso20022-go/ISO20022/head_001_001_02"
 	"github.com/mbanq/iso20022-go/ISO20022/pacs_008_001_08"
-	"github.com/mbanq/iso20022-go/ISO20022/pa
+	"github.com/mbanq/iso20022-go/ISO20022/pacs_028_001_03"
 	"github.com/mbanq/iso20022-go/pkg/common"
 	"github.com/mbanq/iso20022-go/pkg/fednow/config"
 )
@@ -39,12 +39,12 @@ func ParsePacs028(appHdr head.BusinessApplicationHeaderV02, document pacs_028_00
 	}
 
 	// Extract original message identifiers
-	var orgnlMsgId pacs_008_001_08.Max35Text
-	var orgnlMsgNmId pacs_008_001_08.Max35Text
+	var orgnlMsgId pacs_028_001_03.Max35Text
+	var orgnlMsgNmId pacs_028_001_03.Max35Text
 	var orgnlCreDtTm common.ISODateTime
 	if txInfo.OrgnlGrpInf != nil {
-		orgnlMsgId = pacs_008_001_08.Max35Text(txInfo.OrgnlGrpInf.OrgnlMsgId)
-		orgnlMsgNmId = pacs_008_001_08.Max35Text(txInfo.OrgnlGrpInf.OrgnlMsgNmId)
+		orgnlMsgId = txInfo.OrgnlGrpInf.OrgnlMsgId
+		orgnlMsgNmId = txInfo.OrgnlGrpInf.OrgnlMsgNmId
 		if txInfo.OrgnlGrpInf.OrgnlCreDtTm != nil {
 			orgnlCreDtTm = common.ISODateTime(*txInfo.OrgnlGrpInf.OrgnlCreDtTm)
 		}
@@ -90,8 +90,8 @@ func ParsePacs028(appHdr head.BusinessApplicationHeaderV02, document pacs_028_00
 				CreationDateTime:  common.ISODateTime(appHdr.CreDt),
 			},
 			OriginalIdentifier: FedNowIdentifier{
-				MessageID:        orgnlMsgId,
-				MessageType:      orgnlMsgNmId,
+				MessageID:        pacs_008_001_08.Max35Text(orgnlMsgId),
+				MessageType:      pacs_008_001_08.Max35Text(orgnlMsgNmId),
 				InstructionID:    orgnlInstrId,
 				EndToEndID:       orgnlEndToEndId,
 				TransactionID:    orgnlTxId,
