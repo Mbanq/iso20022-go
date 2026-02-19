@@ -39,7 +39,7 @@ func main() {
 	}
 
 	// Generate BAH
-	bahDoc, err := bah.BuildBah(string(fednowMessage.FedNowMsg.Identifier.MessageID), config, "pacs.008.001.08")
+	bahDoc, err := bah.BuildBah(string(fednowMessage.FedNowMsg.Identifier.MessageID), config, "pacs.008.001.08", "")
 	if err != nil {
 		fmt.Printf("Error building bah: %s\n", err)
 		return
