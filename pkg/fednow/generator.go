@@ -9,6 +9,7 @@ import (
 	"sync"
 	"time"
 
+	admi004 "github.com/mbanq/iso20022-go/ISO20022/admi_004_001_02"
 	admi007 "github.com/mbanq/iso20022-go/ISO20022/admi_007_001_01"
 	camt029 "github.com/mbanq/iso20022-go/ISO20022/camt_029_001_09"
 	camt056 "github.com/mbanq/iso20022-go/ISO20022/camt_056_001_08"
@@ -111,6 +112,7 @@ func Generate(xsdPath, messageType string, config *config.Config, message FedNow
 type messageHandler func(cfg *config.Config, msg FedNowMessage) (string, string, error)
 
 var messageHandlers = map[string]messageHandler{
+	"admi.004.001.02": handleAdmi004,
 	"admi.007.001.01": handleAdmi007,
 	"pacs.008.001.08": handlePacs008,
 	"pacs.002.001.10": handlePacs002,
@@ -118,6 +120,35 @@ var messageHandlers = map[string]messageHandler{
 	"pain.013.001.07": handlePain013,
 	"camt.056.001.08": handleCamt056,
 	"camt.029.001.09": handleCamt029,
+}
+
+func handleAdmi004(cfg *config.Config, message FedNowMessage) (string, string, error) {
+	msg, ok := message.(admi.FedNowMessageParticipantBroadcast)
+	if !ok {
+		return "", "", fmt.Errorf("invalid message type for admi.004.001.02")
+	}
+
+	appHdr, document, err := GenerateAdmi004("admi.004.001.02", cfg, msg)
+	if err != nil {
+		return "", "", err
+	}
+
+	appHdrPayload, err := xml.MarshalIndent(appHdr, "            ", "    ")
+	if err != nil {
+		return "", "", fmt.Errorf("error marshalling AppHdr: %v", err)
+	}
+
+	bah := strings.Replace(string(appHdrPayload), "<BusinessApplicationHeaderV02>", "<AppHdr xmlns=\"urn:iso:std:iso:20022:tech:xsd:head.001.001.02\">", 1)
+	bah = strings.Replace(bah, "</BusinessApplicationHeaderV02>", "</AppHdr>", 1)
+
+	documentPayload, err := xml.MarshalIndent(document, "            ", "    ")
+	if err != nil {
+		return "", "", fmt.Errorf("error marshalling document: %v", err)
+	}
+
+	admi004Doc := strings.Replace(string(documentPayload), "<Document>", "<Document xmlns=\"urn:iso:std:iso:20022:tech:xsd:admi.004.001.02\">", 1)
+
+	return bah, admi004Doc, nil
 }
 
 func handleAdmi007(cfg *config.Config, message FedNowMessage) (string, string, error) {
@@ -363,6 +394,21 @@ func GenerateCamt029(messageType string, msgConfig *config.Config, message camt.
 	}
 
 	document, err := camt.BuildCamt029Struct(message, msgConfig)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return appHdr, document, nil
+}
+
+func GenerateAdmi004(messageType string, msgConfig *config.Config, message admi.FedNowMessageParticipantBroadcast) (*head.BusinessApplicationHeaderV02, *admi004.Document, error) {
+
+	appHdr, err := bah.BuildBah(message.FedNowMsg.MessageID, msgConfig, messageType, "")
+	if err != nil {
+		return nil, nil, err
+	}
+
+	document, err := admi.BuildParticipantBroadcast(message, msgConfig)
 	if err != nil {
 		return nil, nil, err
 	}

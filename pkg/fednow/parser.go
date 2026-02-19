@@ -8,7 +8,9 @@ import (
 	"strings"
 
 	admi002 "github.com/mbanq/iso20022-go/ISO20022/admi_002_001_01"
+	admi004 "github.com/mbanq/iso20022-go/ISO20022/admi_004_001_02"
 	admi007 "github.com/mbanq/iso20022-go/ISO20022/admi_007_001_01"
+	admi011 "github.com/mbanq/iso20022-go/ISO20022/admi_011_001_01"
 	camt029 "github.com/mbanq/iso20022-go/ISO20022/camt_029_001_09"
 	camt056 "github.com/mbanq/iso20022-go/ISO20022/camt_056_001_08"
 	head "github.com/mbanq/iso20022-go/ISO20022/head_001_001_02"
@@ -75,6 +77,12 @@ func Parse(xmlData []byte) (FedNowMessage, error) {
 			return nil, err
 		}
 		fednowMsg, err = admi.ParseAdmi002Struct(&doc, appHdr)
+	case strings.Contains(msgType, "admi.004.001.02"):
+		var doc admi004.Document
+		if err = decoder.Decode(&doc); err != nil {
+			return nil, err
+		}
+		fednowMsg, err = admi.ParseFedNowBroadcast(appHdr, doc)
 	case strings.Contains(msgType, "admi.007.001.01"):
 		var doc admi007.Document
 		if err = decoder.Decode(&doc); err != nil {
@@ -93,6 +101,12 @@ func Parse(xmlData []byte) (FedNowMessage, error) {
 			return nil, err
 		}
 		fednowMsg, err = camt.ParseCamt056(appHdr, doc)
+	case strings.Contains(msgType, "admi.011.001.01"):
+		var doc admi011.Document
+		if err = decoder.Decode(&doc); err != nil {
+			return nil, err
+		}
+		fednowMsg, err = admi.ParseAdmi011(appHdr, doc)
 	case strings.Contains(msgType, "camt.029.001.09"):
 		var doc camt029.Document
 		if err = decoder.Decode(&doc); err != nil {
