@@ -224,6 +224,12 @@ type FedNowCxlRsp struct {
 	CancellationDetails []FedNowCxlRspDetails        `json:"cancellationDetails,omitempty"`
 	SenderDI            FedNowDepositoryInstitution2 `json:"senderDepositoryInstitution"`
 	ReceiverDI          FedNowDepositoryInstitution2 `json:"receiverDepositoryInstitution"`
+
+	// IRR-specific fields (Information Request Response flow).
+	// CorrectionTransaction conveys interbank payment reference when Status = IPAY.
+	CorrectionTransaction *FedNowCorrectionTransaction `json:"correctionTransaction,omitempty"`
+	// ResolutionRelatedInformation conveys original payment identifiers when Status = IDUP.
+	ResolutionRelatedInformation *FedNowResolutionRelatedInfo `json:"resolutionRelatedInformation,omitempty"`
 }
 
 type FedNowIdentifierCxlRsp struct {
@@ -271,4 +277,24 @@ type FedNowCxlRspDetails struct {
 	OriginalEndToEndID    *camt_029_001_09.Max35Text        `json:"originalEndToEndId,omitempty"`
 	OriginalUETR          *camt_029_001_09.UUIDv4Identifier `json:"originalUetr,omitempty"`
 	ResolutionRelatedInfo *FedNowResolutionRelatedInfo      `json:"resolutionRelatedInformation,omitempty"`
+}
+
+// FedNowCorrectionTransaction represents the Interbank correction transaction
+// (CrrctnTx/IntrBk) used in Information Request Response when Status = IPAY.
+type FedNowCorrectionTransaction struct {
+	GroupHeader               FedNowCorrectionGroupHeader                        `json:"groupHeader"`
+	InstructionID             *camt_029_001_09.Max35Text                         `json:"instructionId,omitempty"`
+	EndToEndID                *camt_029_001_09.Max35Text                         `json:"endToEndId,omitempty"`
+	TransactionID             *camt_029_001_09.Max35Text                         `json:"transactionId,omitempty"`
+	UETR                      *camt_029_001_09.UUIDv4Identifier                  `json:"uetr,omitempty"`
+	InterbankSettlementAmount camt_029_001_09.ActiveOrHistoricCurrencyAndAmount  `json:"interbankSettlementAmount"`
+	InterbankSettlementDate   common.ISODate                                     `json:"interbankSettlementDate"`
+}
+
+// FedNowCorrectionGroupHeader maps to CorrectiveGroupInformation1 (GrpHdr
+// within CorrectiveInterbankTransaction2).
+type FedNowCorrectionGroupHeader struct {
+	MessageID        camt_029_001_09.Max35Text `json:"messageId"`
+	MessageNameID    camt_029_001_09.Max35Text `json:"messageNameId"`
+	CreationDateTime *common.ISODateTime       `json:"creationDateTime,omitempty"`
 }

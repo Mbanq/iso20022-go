@@ -85,43 +85,6 @@ func BuildCamt029Struct(message FedNowMessageCxlRsp, msgConfig *config.Config) (
 		}
 	}
 
-	var cxlDetails []camt_029_001_09.UnderlyingTransaction22
-	for _, detail := range fedMsg.CancellationDetails {
-		txInf := camt_029_001_09.PaymentTransaction102{
-			OrgnlInstrId:    detail.OriginalInstructionID,
-			OrgnlEndToEndId: detail.OriginalEndToEndID,
-			OrgnlUETR:       detail.OriginalUETR,
-		}
-
-		if detail.OriginalGroupInfo != nil {
-			var orgnlCreationTime *common.ISODateTime
-			if !time.Time(detail.OriginalGroupInfo.CreationDateTime).IsZero() {
-				value := detail.OriginalGroupInfo.CreationDateTime
-				orgnlCreationTime = &value
-			}
-
-			txInf.OrgnlGrpInf = &camt_029_001_09.OriginalGroupInformation29{
-				OrgnlMsgId:   detail.OriginalGroupInfo.MessageID,
-				OrgnlMsgNmId: detail.OriginalGroupInfo.MessageType,
-				OrgnlCreDtTm: orgnlCreationTime,
-			}
-		}
-
-		if detail.ResolutionRelatedInfo != nil {
-			txInf.RsltnRltdInf = &camt_029_001_09.ResolutionData1{
-				EndToEndId:     detail.ResolutionRelatedInfo.EndToEndID,
-				TxId:           detail.ResolutionRelatedInfo.TransactionID,
-				UETR:           detail.ResolutionRelatedInfo.UETR,
-				IntrBkSttlmAmt: detail.ResolutionRelatedInfo.InterbankSettlementAmount,
-				IntrBkSttlmDt:  detail.ResolutionRelatedInfo.InterbankSettlementDate,
-			}
-		}
-
-		cxlDetails = append(cxlDetails, camt_029_001_09.UnderlyingTransaction22{
-			TxInfAndSts: []camt_029_001_09.PaymentTransaction102{txInf},
-		})
-	}
-
 	doc := &camt_029_001_09.Document{
 		XMLName: xml.Name{Space: "urn:iso:std:iso:20022:tech:xsd:camt.029.001.09", Local: "Document"},
 		RsltnOfInvstgtn: camt_029_001_09.ResolutionOfInvestigationV09{
@@ -133,11 +96,78 @@ func BuildCamt029Struct(message FedNowMessageCxlRsp, msgConfig *config.Config) (
 			},
 			RslvdCase: resolvedCase,
 			Sts:       status,
-			CxlDtls:   cxlDetails,
 		},
 	}
 
+	if fedMsg.FlowType == FlowTypeInformationRequest {
+		if fedMsg.CorrectionTransaction != nil {
+			doc.RsltnOfInvstgtn.CrrctnTx = buildCorrectionTransactionInterbank(fedMsg.CorrectionTransaction)
+		}
+		if fedMsg.ResolutionRelatedInformation != nil {
+			doc.RsltnOfInvstgtn.RsltnRltdInf = &camt_029_001_09.ResolutionData1{
+				EndToEndId: fedMsg.ResolutionRelatedInformation.EndToEndID,
+				TxId:       fedMsg.ResolutionRelatedInformation.TransactionID,
+				UETR:       fedMsg.ResolutionRelatedInformation.UETR,
+			}
+		}
+	} else {
+		var cxlDetails []camt_029_001_09.UnderlyingTransaction22
+		for _, detail := range fedMsg.CancellationDetails {
+			txInf := camt_029_001_09.PaymentTransaction102{
+				OrgnlInstrId:    detail.OriginalInstructionID,
+				OrgnlEndToEndId: detail.OriginalEndToEndID,
+				OrgnlUETR:       detail.OriginalUETR,
+			}
+
+			if detail.OriginalGroupInfo != nil {
+				var orgnlCreationTime *common.ISODateTime
+				if !time.Time(detail.OriginalGroupInfo.CreationDateTime).IsZero() {
+					value := detail.OriginalGroupInfo.CreationDateTime
+					orgnlCreationTime = &value
+				}
+
+				txInf.OrgnlGrpInf = &camt_029_001_09.OriginalGroupInformation29{
+					OrgnlMsgId:   detail.OriginalGroupInfo.MessageID,
+					OrgnlMsgNmId: detail.OriginalGroupInfo.MessageType,
+					OrgnlCreDtTm: orgnlCreationTime,
+				}
+			}
+
+			if detail.ResolutionRelatedInfo != nil {
+				txInf.RsltnRltdInf = &camt_029_001_09.ResolutionData1{
+					EndToEndId:     detail.ResolutionRelatedInfo.EndToEndID,
+					TxId:           detail.ResolutionRelatedInfo.TransactionID,
+					UETR:           detail.ResolutionRelatedInfo.UETR,
+					IntrBkSttlmAmt: detail.ResolutionRelatedInfo.InterbankSettlementAmount,
+					IntrBkSttlmDt:  detail.ResolutionRelatedInfo.InterbankSettlementDate,
+				}
+			}
+
+			cxlDetails = append(cxlDetails, camt_029_001_09.UnderlyingTransaction22{
+				TxInfAndSts: []camt_029_001_09.PaymentTransaction102{txInf},
+			})
+		}
+		doc.RsltnOfInvstgtn.CxlDtls = cxlDetails
+	}
+
 	return doc, nil
+}
+
+func buildCorrectionTransactionInterbank(ct *FedNowCorrectionTransaction) *camt_029_001_09.CorrectiveTransaction4Choice {
+	intrBk := &camt_029_001_09.CorrectiveInterbankTransaction2{
+		GrpHdr: &camt_029_001_09.CorrectiveGroupInformation1{
+			MsgId:   ct.GroupHeader.MessageID,
+			MsgNmId: ct.GroupHeader.MessageNameID,
+			CreDtTm: ct.GroupHeader.CreationDateTime,
+		},
+		InstrId:        ct.InstructionID,
+		EndToEndId:     ct.EndToEndID,
+		TxId:           ct.TransactionID,
+		UETR:           ct.UETR,
+		IntrBkSttlmAmt: ct.InterbankSettlementAmount,
+		IntrBkSttlmDt:  ct.InterbankSettlementDate,
+	}
+	return &camt_029_001_09.CorrectiveTransaction4Choice{IntrBk: intrBk}
 }
 
 func BuildCamt029(payload []byte, cfg *config.Config) (*camt_029_001_09.Document, error) {
@@ -239,6 +269,36 @@ func ParseCamt029(appHdr head.BusinessApplicationHeaderV02, document camt_029_00
 				ReceiverABANumber: receiverABANumber,
 			},
 		},
+	}
+
+	if response.CrrctnTx != nil && response.CrrctnTx.IntrBk != nil {
+		intrBk := response.CrrctnTx.IntrBk
+		ct := &FedNowCorrectionTransaction{
+			InstructionID: intrBk.InstrId,
+			EndToEndID:    intrBk.EndToEndId,
+			TransactionID: intrBk.TxId,
+			UETR:          intrBk.UETR,
+			InterbankSettlementAmount: intrBk.IntrBkSttlmAmt,
+			InterbankSettlementDate:   intrBk.IntrBkSttlmDt,
+		}
+		if intrBk.GrpHdr != nil {
+			ct.GroupHeader = FedNowCorrectionGroupHeader{
+				MessageID:        intrBk.GrpHdr.MsgId,
+				MessageNameID:    intrBk.GrpHdr.MsgNmId,
+				CreationDateTime: intrBk.GrpHdr.CreDtTm,
+			}
+		}
+		msg.FedNowMsg.CorrectionTransaction = ct
+	}
+
+	if response.RsltnRltdInf != nil {
+		msg.FedNowMsg.ResolutionRelatedInformation = &FedNowResolutionRelatedInfo{
+			EndToEndID:                response.RsltnRltdInf.EndToEndId,
+			TransactionID:             response.RsltnRltdInf.TxId,
+			UETR:                      response.RsltnRltdInf.UETR,
+			InterbankSettlementAmount: response.RsltnRltdInf.IntrBkSttlmAmt,
+			InterbankSettlementDate:   response.RsltnRltdInf.IntrBkSttlmDt,
+		}
 	}
 
 	return &msg, nil
