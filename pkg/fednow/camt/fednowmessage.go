@@ -1,6 +1,7 @@
 package camt
 
 import (
+	camt_026_001_07 "github.com/mbanq/iso20022-go/ISO20022/camt_026_001_07"
 	camt_029_001_09 "github.com/mbanq/iso20022-go/ISO20022/camt_029_001_09"
 	camt_056_001_08 "github.com/mbanq/iso20022-go/ISO20022/camt_056_001_08"
 	"github.com/mbanq/iso20022-go/pkg/common"
@@ -77,6 +78,110 @@ var marketPracticeIDByFlowType = map[string]string{
 	FlowTypeInformationRequest: "frb.fednow.irr.01",
 	FlowTypeRFPCancellation:    "frb.fednow.rcr.01",
 }
+
+// ---------------------------------------------------------------------------
+// camt.026 – Information Request (Unable To Apply)
+// ---------------------------------------------------------------------------
+
+// FedNowMessageInfoReq represents a FedNow camt.026 information request message.
+type FedNowMessageInfoReq struct {
+	FedNowMsg FedNowInfoReq `json:"fedNowMessage"`
+}
+
+func (f FedNowMessageInfoReq) IsFedNowMessage() {}
+
+// PreferredWrapper returns the FedNow envelope wrapper element name for camt.026.
+func (f FedNowMessageInfoReq) PreferredWrapper() string {
+	return "FedNowInformationRequest"
+}
+
+type FedNowInfoReq struct {
+	CreationDateTime common.ISODateTime              `json:"creationDateTime"`
+	Identifier       FedNowIdentifierInfoReq         `json:"identifier"`
+	Case             FedNowCaseInfoReq               `json:"case"`
+	Underlying       FedNowUnderlyingInfoReq         `json:"underlying"`
+	Justification    FedNowJustification             `json:"justification"`
+	SenderDI         FedNowDepositoryInstitutionInfo  `json:"senderDepositoryInstitution"`
+	ReceiverDI       FedNowDepositoryInstitutionInfo  `json:"receiverDepositoryInstitution"`
+}
+
+type FedNowIdentifierInfoReq struct {
+	BusinessMessageID camt_026_001_07.Max35Text `json:"businessMessageId"`
+	MessageID         camt_026_001_07.Max35Text `json:"messageId"`
+	MessageType       camt_026_001_07.Max35Text `json:"messageType,omitempty"`
+	CreationDateTime  common.ISODateTime        `json:"creationDateTime,omitempty"`
+}
+
+type FedNowDepositoryInstitutionInfo struct {
+	SenderABANumber   camt_026_001_07.Max35Text `json:"senderABANumber,omitempty"`
+	ReceiverABANumber camt_026_001_07.Max35Text `json:"receiverABANumber,omitempty"`
+}
+
+type FedNowCaseInfoReq struct {
+	CaseID    camt_026_001_07.Max35Text       `json:"caseId"`
+	CreatorDI FedNowDepositoryInstitutionInfo  `json:"creatorDepositoryInstitution"`
+}
+
+type FedNowUnderlyingInfoReq struct {
+	Initiation *FedNowUnderlyingInitiation `json:"initiation,omitempty"`
+	Interbank  *FedNowUnderlyingInterbank  `json:"interbank,omitempty"`
+}
+
+type FedNowUnderlyingInitiation struct {
+	OriginalGroupInfo        *FedNowOriginalGroupInfoCamt026                    `json:"originalGroupInformation,omitempty"`
+	OriginalPaymentInfoID    *camt_026_001_07.Max35Text                         `json:"originalPaymentInformationId,omitempty"`
+	OriginalInstructionID    *camt_026_001_07.Max35Text                         `json:"originalInstructionId,omitempty"`
+	OriginalEndToEndID       *camt_026_001_07.Max35Text                         `json:"originalEndToEndId,omitempty"`
+	OriginalUETR             *camt_026_001_07.UUIDv4Identifier                  `json:"originalUetr,omitempty"`
+	OriginalInstructedAmount *camt_026_001_07.ActiveOrHistoricCurrencyAndAmount `json:"originalInstructedAmount"`
+	RequestedExecutionDate   *FedNowDateChoice                                  `json:"requestedExecutionDate,omitempty"`
+}
+
+type FedNowUnderlyingInterbank struct {
+	OriginalGroupInfo                 *FedNowOriginalGroupInfoCamt026                    `json:"originalGroupInformation,omitempty"`
+	OriginalInstructionID             *camt_026_001_07.Max35Text                         `json:"originalInstructionId,omitempty"`
+	OriginalEndToEndID                *camt_026_001_07.Max35Text                         `json:"originalEndToEndId,omitempty"`
+	OriginalTransactionID             *camt_026_001_07.Max35Text                         `json:"originalTransactionId,omitempty"`
+	OriginalUETR                      *camt_026_001_07.UUIDv4Identifier                  `json:"originalUetr,omitempty"`
+	OriginalInterbankSettlementAmount *camt_026_001_07.ActiveOrHistoricCurrencyAndAmount `json:"originalInterbankSettlementAmount"`
+	OriginalInterbankSettlementDate   *common.ISODate                                    `json:"originalInterbankSettlementDate"`
+}
+
+type FedNowOriginalGroupInfoCamt026 struct {
+	MessageID        camt_026_001_07.Max35Text `json:"originalMessageId"`
+	MessageType      camt_026_001_07.Max35Text `json:"originalMessageType"`
+	CreationDateTime common.ISODateTime        `json:"originalCreationDateTime,omitempty"`
+}
+
+type FedNowDateChoice struct {
+	Date     *common.ISODate     `json:"date,omitempty"`
+	DateTime *common.ISODateTime `json:"dateTime,omitempty"`
+}
+
+type FedNowJustification struct {
+	MissingOrIncorrectInfo       *FedNowMissingOrIncorrectInfo       `json:"missingOrIncorrectInformation,omitempty"`
+	PossibleDuplicateInstruction *camt_026_001_07.TrueFalseIndicator `json:"possibleDuplicateInstruction,omitempty"`
+}
+
+type FedNowMissingOrIncorrectInfo struct {
+	AMLRequest    *camt_026_001_07.AMLIndicator `json:"amlRequest,omitempty"`
+	MissingInfo   []FedNowMissingInfo           `json:"missingInformation,omitempty"`
+	IncorrectInfo []FedNowIncorrectInfo         `json:"incorrectInformation,omitempty"`
+}
+
+type FedNowMissingInfo struct {
+	Code           camt_026_001_07.UnableToApplyMissingInformation3Code `json:"code"`
+	AdditionalInfo *camt_026_001_07.Max140Text                         `json:"additionalInformation,omitempty"`
+}
+
+type FedNowIncorrectInfo struct {
+	Code           camt_026_001_07.UnableToApplyIncorrectInformation4Code `json:"code"`
+	AdditionalInfo *camt_026_001_07.Max140Text                           `json:"additionalInformation,omitempty"`
+}
+
+// ---------------------------------------------------------------------------
+// camt.029 – Resolution of Investigation
+// ---------------------------------------------------------------------------
 
 // FedNowMessageCxlRsp represents a FedNow camt.029 cancellation response message.
 // It implements fednow.FedNowMessage via IsFedNowMessage().
