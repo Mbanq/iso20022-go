@@ -17,6 +17,7 @@ import (
 	head "github.com/mbanq/iso20022-go/ISO20022/head_001_001_02"
 	pacs002 "github.com/mbanq/iso20022-go/ISO20022/pacs_002_001_10"
 	pacs008 "github.com/mbanq/iso20022-go/ISO20022/pacs_008_001_08"
+	pacs028 "github.com/mbanq/iso20022-go/ISO20022/pacs_028_001_03"
 	pain013 "github.com/mbanq/iso20022-go/ISO20022/pain_013_001_07"
 	"github.com/mbanq/iso20022-go/pkg/fednow/admi"
 	"github.com/mbanq/iso20022-go/pkg/fednow/camt"
@@ -102,6 +103,12 @@ func Parse(xmlData []byte) (FedNowMessage, error) {
 			return nil, err
 		}
 		fednowMsg, err = camt.ParseCamt026(appHdr, doc)
+	case strings.Contains(msgType, "pacs.028.001.03"):
+		var doc pacs028.Document
+		if err = decoder.Decode(&doc); err != nil {
+			return nil, err
+		}
+		fednowMsg, err = pacs.ParsePacs028(appHdr, doc)
 	case strings.Contains(msgType, "camt.056.001.08"):
 		var doc camt056.Document
 		if err = decoder.Decode(&doc); err != nil {
